@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { PRODUCTS } from "@/lib/data";
+import { PRODUCTS, type Product } from "@/lib/data";
 import { useLang } from "@/lib/lang";
 import ProductCard from "./ProductCard";
 
 // Homepage preview. Full catalog lives on /shop.
-export default function Products() {
+export default function Products({ initial }: { initial?: Product[] }) {
   const { t } = useLang();
-  const featured = PRODUCTS.filter((p) => p.tags.includes("best")).slice(0, 4);
+  const source = initial?.length ? initial : PRODUCTS;
+  const featured = source.filter((p) => p.tags.includes("best")).slice(0, 4);
 
   return (
     <section id="products" className="py-[64px] scroll-mt-[170px]">

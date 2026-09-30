@@ -5,17 +5,28 @@ import Products from "@/components/Products";
 import { Story, Reviews } from "@/components/Story";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
+import { getHero } from "@/lib/hero-db";
+import { getProducts, getCategories, getReviews } from "@/lib/catalog-db";
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  const [hero, products, categories, reviews] = await Promise.all([
+    getHero(),
+    getProducts(),
+    getCategories(),
+    getReviews(),
+  ]);
+
   return (
     <>
-      <Header />
+      <Header categories={categories} />
       <main>
-        <Hero />
-        <Categories />
-        <Products />
+        <Hero initial={hero} />
+        <Categories initial={categories} />
+        <Products initial={products} />
         <Story />
-        <Reviews />
+        <Reviews initial={reviews} />
         <CTA />
       </main>
       <Footer />

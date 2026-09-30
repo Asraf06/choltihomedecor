@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
+import { getCategories } from "@/lib/catalog-db";
 import ContactView from "./ContactView";
 
 export const metadata: Metadata = {
@@ -9,10 +10,10 @@ export const metadata: Metadata = {
   description: "Hotline, WhatsApp and email for orders and questions.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
   return (
     <>
-      <Header />
+      <Header categories={await getCategories()} />
       <ContactView />
       <CTA />
       <Footer />

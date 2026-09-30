@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
+import { getCategories } from "@/lib/catalog-db";
 import TrackView from "./TrackView";
 
 export const metadata: Metadata = {
@@ -9,10 +10,10 @@ export const metadata: Metadata = {
   description: "Track your order on WhatsApp. Delivery in 2-4 days, cash on delivery.",
 };
 
-export default function TrackPage() {
+export default async function TrackPage() {
   return (
     <>
-      <Header />
+      <Header categories={await getCategories()} />
       <TrackView />
       <CTA />
       <Footer />

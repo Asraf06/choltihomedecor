@@ -4,11 +4,13 @@ import Header from "@/components/Header";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
 import CategoryView from "./CategoryView";
+import { getProducts, getCategories } from "@/lib/catalog-db";
 
-const CATS = ["sofa", "bedsheet", "cushion", "curtain"] as const;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return CATS.map((id) => ({ id }));
+  const cats = await getCategories();
+  return cats.map((c) => ({ id: c.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -21,12 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!CATS.includes(id as (typeof CATS)[number])) notFound();
+  const [products, cats] = await Promise.all([getProducts(), getCategories()]);
+  const found = cats.find((c) => c.id === id);
+  if (!found) notFound();
 
   return (
     <>
-      <Header />
-      <CategoryView cat={id} />
+      <Header categories={cats} />
+      <CategoryView cat={id} name={found.name} initial={products} />
       <CTA />
       <Footer />
       <FloatingWA />

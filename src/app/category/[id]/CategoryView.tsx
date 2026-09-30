@@ -2,18 +2,11 @@
 
 import Link from "next/link";
 import ShopGrid from "@/components/ShopGrid";
+import type { Product } from "@/lib/data";
 import { useLang } from "@/lib/lang";
 
-const NAMES: Record<string, { bn: string; en: string }> = {
-  sofa: { bn: "সোফা কভার", en: "Sofa Cover" },
-  bedsheet: { bn: "বেডশিট", en: "Bedsheet" },
-  cushion: { bn: "কুশন কভার", en: "Cushion Cover" },
-  curtain: { bn: "পর্দা", en: "Curtain" },
-};
-
-export default function CategoryView({ cat }: { cat: string }) {
-  const { lang, t } = useLang();
-  const name = NAMES[cat] ? (lang === "bn" ? NAMES[cat].bn : NAMES[cat].en) : cat;
+export default function CategoryView({ cat, name, initial }: { cat: string; name: string; initial?: Product[] }) {
+  const { t } = useLang();
 
   return (
     <main className="max-w-[1180px] mx-auto px-5 py-8">
@@ -22,7 +15,7 @@ export default function CategoryView({ cat }: { cat: string }) {
         <h1 className="font-serif text-4xl">{name}</h1>
         <div className="gold-divider" />
       </div>
-      <ShopGrid fixedCat={cat} />
+      <ShopGrid fixedCat={cat} initial={initial} />
     </main>
   );
 }

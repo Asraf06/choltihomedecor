@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, Phone, ShoppingCart, Banknote, Truck, RefreshCcw } from "lucide-react";
@@ -8,14 +8,16 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
-import { PRODUCTS, FABRICS } from "@/lib/data";
+import { FABRICS } from "@/lib/data";
+import type { Product } from "@/lib/data";
+import type { ShopCategory } from "@/lib/catalog-db";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import { waProductLink } from "@/lib/whatsapp";
 
-export default function ProductView({ slug }: { slug: string }) {
+export default function ProductView({ product, related, categories }: { product: Product; related: Product[]; categories?: ShopCategory[] }) {
   const { t } = useLang();
-  const p = useMemo(() => PRODUCTS.find((x) => x.slug === slug) ?? PRODUCTS[0], [slug]);
+  const p = product;
   const { addToCart, setCartOpen } = useShop();
   const [fabric, setFabric] = useState(FABRICS[0]);
   const [size, setSize] = useState(p.cat === "bedsheet" ? "King" : p.cat === "curtain" ? "7ft" : "5-seater");
@@ -24,19 +26,19 @@ export default function ProductView({ slug }: { slug: string }) {
   const [img, setImg] = useState(0);
 
   const sizes = p.cat === "bedsheet" ? ["Queen", "King"] : p.cat === "curtain" ? ["7ft", "8ft"] : ["Single 3-seater", "5-seater", "7-seater"];
-  const related = PRODUCTS.filter((x) => x.slug !== p.slug).slice(0, 4);
+  const gallery = p.imgs?.length ? p.imgs : [p.img];
 
   return (
     <>
-      <Header />
+      <Header categories={categories} />
       <main className="max-w-[1180px] mx-auto px-5">
         <Link href="/" className="text-[13px] text-muted inline-block mt-4">{t.back}</Link>
         <div className="grid md:grid-cols-2 gap-7 py-7">
           <div>
             <div className="relative w-full h-[320px] md:h-[480px]">
-              <Image src={p.imgs[img]} alt={p.name} fill className="object-cover rounded-[20px] border border-line" sizes="(max-width:768px)100vw,50vw" priority />
+              <Image src={gallery[img % gallery.length]} alt={p.name} fill className="object-cover rounded-[20px] border border-line" sizes="(max-width:768px)100vw,50vw" priority />
             </div>
-            <div className="flex gap-2.5 mt-2.5">{p.imgs.map((im, i) => (
+            <div className="flex gap-2.5 mt-2.5">{gallery.map((im, i) => (
               <button key={i} onClick={() => setImg(i)} className={`relative w-20 h-20 rounded-xl overflow-hidden border ${i === img ? "outline outline-2 outline-gold" : "border-line"}`}>
                 <Image src={im} alt="thumb" fill className="object-cover" sizes="80px" />
               </button>

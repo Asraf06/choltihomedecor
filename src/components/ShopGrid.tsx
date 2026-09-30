@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PRODUCTS } from "@/lib/data";
+import { PRODUCTS, type Product } from "@/lib/data";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import ProductCard from "./ProductCard";
@@ -10,12 +10,13 @@ const TAB_IDS = ["all", "best", "sofa", "bedsheet", "cushion", "curtain"];
 
 // Product grid with tabs and header search filtering.
 // fixedCat locks the grid to one category (category pages). Otherwise tabs switch freely.
-export default function ShopGrid({ fixedCat }: { fixedCat?: string }) {
+export default function ShopGrid({ fixedCat, initial }: { fixedCat?: string; initial?: Product[] }) {
   const { t } = useLang();
   const { search } = useShop();
   const [tab, setTab] = useState(fixedCat ?? "all");
+  const source = initial?.length ? initial : PRODUCTS;
 
-  const list = PRODUCTS.filter((p) => {
+  const list = source.filter((p) => {
     const catOk = fixedCat ? p.cat === fixedCat : true;
     const tabOk = fixedCat || tab === "all" ? true : tab === "best" ? p.tags.includes("best") : p.cat === tab;
     const q = search.trim().toLowerCase();

@@ -2,16 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { ChevronDown, Check, ArrowUpDown, X, Search } from "lucide-react";
-import { PRODUCTS } from "@/lib/data";
+import { PRODUCTS, CATEGORIES, type Product } from "@/lib/data";
+import type { ShopCategory } from "@/lib/catalog-db";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import ProductCard from "./ProductCard";
 
-const CATS = ["all", "sofa", "bedsheet", "cushion", "curtain"];
 const SORTS = ["featured", "low", "high", "off"];
 
-// Theme-matched sort dropdown. Native select use kora hoy nai karon
-// option list OS render kore, site theme er sathe milto na.
+// Custom dropdown instead of a native select, so the option list matches the site theme.
 function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) => void }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
@@ -58,24 +57,31 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
 }
 
 // Shop layout: sticky category sidebar on the left, sort dropdown above the grid on the right.
-export default function ShopCatalog() {
-  const { t } = useLang();
+export default function ShopCatalog({ initial, categories }: { initial?: Product[]; categories?: ShopCategory[] }) {
+  const { t, lang } = useLang();
   const { search, setSearch, chromeHidden } = useShop();
   const [cat, setCat] = useState("all");
   const [sort, setSort] = useState("featured");
+  const source = initial?.length ? initial : PRODUCTS;
+  const cats = categories?.length ? categories : (CATEGORIES as ShopCategory[]);
 
-  const catName = (c: string) =>
-    c === "all" ? t.all : c === "sofa" ? t.sofa : c === "bedsheet" ? t.bedsheet : c === "cushion" ? t.cushion : t.curtain;
+  const catIds = ["all", ...cats.map((c) => c.id)];
+  const catName = (c: string) => {
+    if (c === "all") return t.all;
+    const found = cats.find((x) => x.id === c);
+    if (!found) return c;
+    return lang === "bn" && found.bn ? found.bn : found.name;
+  };
 
   const counts = useMemo(() => {
-    const m: Record<string, number> = { all: PRODUCTS.length };
-    for (const c of CATS.slice(1)) m[c] = PRODUCTS.filter((p) => p.cat === c).length;
+    const m: Record<string, number> = { all: source.length };
+    for (const c of catIds.slice(1)) m[c] = source.filter((p) => p.cat === c).length;
     return m;
-  }, []);
+  }, [source, cats]);
 
   const list = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const filtered = PRODUCTS.filter(
+    const filtered = source.filter(
       (p) =>
         (cat === "all" || p.cat === cat) &&
         (!q || `${p.name} ${p.bn} ${p.cat}`.toLowerCase().includes(q))
@@ -138,7 +144,7 @@ export default function ShopCatalog() {
       >
         <b className="text-[13px] block mb-2">{t.categories}</b>
         <div className="flex flex-col gap-1.5">
-          {CATS.map((c) => (
+          {catIds.map((c) => (
             <button
               key={c}
               onClick={() => setCat(c)}
@@ -153,7 +159,7 @@ export default function ShopCatalog() {
       </aside>
       <div className="flex-1 min-w-0">
         <div className="lg:hidden flex gap-2 overflow-x-auto whitespace-nowrap pb-3 -mx-5 px-5">
-          {CATS.map((c) => (
+          {catIds.map((c) => (
             <button
               key={c}
               onClick={() => setCat(c)}

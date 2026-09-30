@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import { WA_LINK, CATEGORIES } from "@/lib/data";
+import type { ShopCategory } from "@/lib/catalog-db";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,9 +21,10 @@ function LangToggle() {
   );
 }
 
-export default function Header() {
+export default function Header({ categories }: { categories?: ShopCategory[] }) {
   const { search, setSearch, cartCount, setCartOpen, setChromeHidden } = useShop();
   const { t } = useLang();
+  const browse = categories?.length ? categories : (CATEGORIES as ShopCategory[]);
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastY = useRef(0);
@@ -117,7 +119,7 @@ export default function Header() {
                   <>
                     <button aria-label="Close menu" onClick={() => setOpen(false)} className="fixed inset-0 z-[90] cursor-default bg-transparent" />
                     <div className="absolute top-full left-0 bg-paper border border-line rounded-2xl shadow-[0_18px_50px_rgba(62,32,12,0.10)] min-w-[280px] p-2 z-[95]">
-                    {CATEGORIES.slice(0, 5).map((c) => (
+                    {browse.slice(0, 6).map((c) => (
                       <Link key={c.name} href={`/category/${c.id}`} onClick={() => setOpen(false)} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-sand w-full text-left">
                         <Image src={c.img} alt={c.name} width={44} height={44} className="w-11 h-11 rounded-full object-cover border border-line" loading="lazy" />
                         <span><b className="text-[13px] block">{c.name}</b><small className="text-[11px] text-muted">{c.count}</small></span>

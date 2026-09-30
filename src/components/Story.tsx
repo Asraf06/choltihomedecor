@@ -48,9 +48,10 @@ export function Story() {
   );
 }
 
-export function Reviews() {
+export function Reviews({ initial }: { initial?: { t: string; n: string; a: string }[] }) {
   const { t, lang } = useLang();
-  if (!REVIEWS.length) {
+  const source = initial?.length ? initial : REVIEWS;
+  if (!source.length) {
     return (
       <section className="bg-sand border-y border-line py-[64px]">
         <div className="max-w-[1180px] mx-auto px-5 text-center">
@@ -68,7 +69,7 @@ export function Reviews() {
     <section className="bg-sand border-y border-line py-[64px] overflow-hidden">
       <div className="text-center"><div className="eyebrow">{t.revEyebrow}</div><h2 className="font-serif text-[32px]">{t.revTitleA} <span className="italic-accent">{t.revTitleB}</span></h2><div className="gold-divider center" /></div>
       <div className="marquee overflow-hidden"><div className="marquee-track flex gap-4 w-max px-5">
-        {[...REVIEWS, ...REVIEWS].map((r, i) => (
+        {[...source, ...source].map((r, i) => (
           <div key={i} className="bg-white border border-line rounded-[20px] p-[18px] w-[300px] shrink-0 text-left">
             <div className="stars">★★★★★</div><p className="text-[13px] mt-1">{r.t}</p>
             <div className="flex items-center gap-2.5 mt-3"><span className="w-9 h-9 rounded-full bg-gold-soft grid place-items-center font-extrabold text-forest">{r.n[0]}</span><span><b className="text-[13px]">{r.n}</b><small className="block text-muted text-[11px]">{r.a}</small></span><span className="ml-auto bg-forest text-white text-[10px] rounded-full px-2 py-0.5 font-bold">Verified</span></div>

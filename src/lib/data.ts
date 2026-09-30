@@ -8,7 +8,7 @@ export type Product = {
   slug: string;
   name: string;
   bn: string;
-  cat: "sofa" | "bedsheet" | "cushion" | "curtain";
+  cat: string;
   tags: string[];
   old: number;
   now: number;

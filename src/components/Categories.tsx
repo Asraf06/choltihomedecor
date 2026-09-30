@@ -2,10 +2,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/data";
+import type { ShopCategory } from "@/lib/catalog-db";
 import { useLang } from "@/lib/lang";
 
-export default function Categories() {
+export default function Categories({ initial }: { initial?: ShopCategory[] }) {
   const { t } = useLang();
+  const list = initial?.length ? initial : (CATEGORIES as ShopCategory[]);
   return (
     <section className="bg-paper border-b border-line py-[64px]">
       <div className="max-w-[1180px] mx-auto px-5">
@@ -14,7 +16,7 @@ export default function Categories() {
           <Link href="/shop" className="text-clay text-[13px] font-bold whitespace-nowrap">{t.viewAll}</Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[18px]">
-          {CATEGORIES.map((c) => (
+          {list.map((c) => (
             <Link key={c.name} href={`/category/${c.id}`} className="text-center group">
               <span className="relative block w-[160px] h-[160px] mx-auto max-w-full">
                 <Image src={c.img} alt={c.name} width={160} height={160} className="w-[160px] h-[160px] max-w-full rounded-full object-cover border-2 border-white outline outline-1 outline-line shadow-[0_18px_50px_rgba(62,32,12,0.10)] group-hover:scale-105 group-hover:outline-gold transition" loading="lazy" />

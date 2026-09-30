@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { PRODUCTS } from "@/lib/data";
+import { notFound } from "next/navigation";
+import { getProducts, getCategories } from "@/lib/catalog-db";
+
+import ProductView from "./ProductView";
+
+export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ slug: p.slug }));
+  const products = await getProducts();
+  return products.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const p = PRODUCTS.find((x) => x.slug === slug);
+  const products = await getProducts();
+  const p = products.find((x) => x.slug === slug);
   if (!p) return { title: "Product not found - Cholti" };
   return {
     title: `${p.name} - Cholti Home Decor`,
@@ -15,9 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-import ProductView from "./ProductView";
-
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <ProductView slug={slug} />;
+  const [products, cats] = await Promise.all([getProducts(), getCategories()]);
+  const product = products.find((x) => x.slug === slug);
+  if (!product) notFound();
+  const related = products.filter((x) => x.slug !== slug).slice(0, 4);
+  return <ProductView product={product} related={related} categories={cats} />;
 }
