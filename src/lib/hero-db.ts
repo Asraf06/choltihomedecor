@@ -9,9 +9,11 @@ let cached: ReturnType<typeof getFirestore> | null = null;
 function fsdb() {
   if (!cached) {
     if (!getApps().length) {
+      const inline = process.env.FIREBASE_SERVICE_ACCOUNT;
       const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-      if (!keyFile) throw new Error("GOOGLE_APPLICATION_CREDENTIALS is not set");
-      initializeApp({ credential: cert(keyFile) });
+      if (inline) initializeApp({ credential: cert(JSON.parse(inline)) });
+      else if (keyFile) initializeApp({ credential: cert(keyFile) });
+      else throw new Error("Firebase credentials are not set");
     }
     cached = getFirestore();
   }
@@ -57,14 +59,15 @@ export async function getHero(): Promise<HeroPayload> {
     const db = fsdb();
     const [cfg, snap] = await Promise.all([
       db.doc("hero_config/main").get(),
-      db.collection("hero_slides").where("active", "==", 1).orderBy("sort_order").get(),
+      db.collection("hero_slides").where("active", "==", 1).get(),
     ]);
     const style = cfg.data()?.style;
     if (style !== "banner" && style !== "editorial") throw new Error("bad style");
     const now = new Date().toISOString();
     const slides = snap.docs
-      .map((d) => ({ id: d.id, ...(d.data() as object) }) as Row & { id: string })
+      .map((d) => ({ id: d.id, ...(d.data() as object), order: Number(d.data().sort_order ?? 0) }) as Row & { id: string; order: number })
       .filter((r) => inWindow(r.starts_at, r.ends_at, now))
+      .sort((a, b) => a.order - b.order)
       .map((r) => toSlide(r.id, r));
     if (!slides.length) throw new Error("no slides");
     return { style, slides };

@@ -9,9 +9,11 @@ let cached: ReturnType<typeof getFirestore> | null = null;
 function fsdb() {
   if (!cached) {
     if (!getApps().length) {
+      const inline = process.env.FIREBASE_SERVICE_ACCOUNT;
       const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-      if (!keyFile) throw new Error("GOOGLE_APPLICATION_CREDENTIALS is not set");
-      initializeApp({ credential: cert(keyFile) });
+      if (inline) initializeApp({ credential: cert(JSON.parse(inline)) });
+      else if (keyFile) initializeApp({ credential: cert(keyFile) });
+      else throw new Error("Firebase credentials are not set");
     }
     cached = getFirestore();
   }
@@ -58,7 +60,10 @@ function toReview(v: FirebaseFirestore.DocumentData): ShopReview {
 
 async function activeDocs(collection: string) {
   const snap = await fsdb().collection(collection).where("active", "==", 1).get();
-  return snap.docs;
+  return snap.docs
+    .map((d) => ({ order: Number(d.data().sort_order ?? 0), doc: d }))
+    .sort((a, b) => a.order - b.order)
+    .map((x) => x.doc);
 }
 
 export async function getProducts(): Promise<Product[]> {
