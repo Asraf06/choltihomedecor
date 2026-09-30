@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail } from "lucide-react";
+import { Mail, AlertCircle } from "lucide-react";
 import { useAuth, AuthError } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 
@@ -24,6 +24,10 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [badEmail, setBadEmail] = useState(false);
+  const [badPass, setBadPass] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -44,11 +48,36 @@ export default function AuthForm() {
     }
   };
 
+  const submitEmail = () => {
+    if (!email.trim()) {
+      setError(t.emailRequired);
+      setBadEmail(true);
+      setBadPass(false);
+      emailRef.current?.focus();
+      return;
+    }
+    if (!password) {
+      setError(t.passwordRequired);
+      setBadPass(true);
+      setBadEmail(false);
+      passRef.current?.focus();
+      return;
+    }
+    setBadEmail(false);
+    setBadPass(false);
+    run(() => (mode === "in" ? signInEmail(email, password) : signUpEmail(name, email, password)));
+  };
+
   return (
     <div className="w-full max-w-sm bg-paper border border-line rounded-[20px] p-6">
       <b className="font-serif text-2xl">{mode === "in" ? t.loginTitle : t.signUp}</b>
       <p className="text-[13px] text-muted mt-1 mb-4">{t.loginSub}</p>
-      {error && <p className="text-[13px] font-bold text-clay mb-3">{error}</p>}
+      {error && (
+        <p role="alert" className="flex items-center gap-2 rounded-xl border border-clay/40 bg-clay-light px-3.5 py-2.5 text-[13px] font-bold text-clay mb-3">
+          <AlertCircle size={16} className="shrink-0" />
+          {error}
+        </p>
+      )}
       <button
         disabled={busy}
         onClick={() => run(signInGoogle)}
@@ -74,16 +103,16 @@ export default function AuthForm() {
         </label>
       )}
       <label className="block text-xs font-bold mb-2.5">
-        {t.emailAddress}
-        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" maxLength={80} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
+        {t.emailAddress} <span aria-hidden className="text-clay">*</span>
+        <input ref={emailRef} value={email} onChange={(e) => { setEmail(e.target.value); setBadEmail(false); }} type="email" autoComplete="email" required maxLength={80} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badEmail ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
       <label className="block text-xs font-bold mb-4">
-        {t.passwordLabel}
-        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
+        {t.passwordLabel} <span aria-hidden className="text-clay">*</span>
+        <input ref={passRef} value={password} onChange={(e) => { setPassword(e.target.value); setBadPass(false); }} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badPass ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
       <button
         disabled={busy}
-        onClick={() => run(() => (mode === "in" ? signInEmail(email, password) : signUpEmail(name, email, password)))}
+        onClick={submitEmail}
         className="w-full inline-flex justify-center items-center bg-clay text-white rounded-[35px] py-3 text-[13px] font-bold hover:bg-clay-dark disabled:opacity-50"
       >
         {mode === "in" ? t.signIn : t.signUp}
