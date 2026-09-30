@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Search, ShoppingBag, Menu, ChevronDown, Phone, Mail, MessageCircle, Globe, AtSign, Share2, Languages } from "lucide-react";
+import { Search, ShoppingBag, Menu, ChevronDown, Phone, Mail, MessageCircle, Globe, AtSign, Share2, Languages, User, LogOut } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 import Image from "next/image";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import { WA_LINK, CATEGORIES } from "@/lib/data";
 import type { ShopCategory } from "@/lib/catalog-db";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 function LangToggle() {
@@ -24,6 +25,9 @@ function LangToggle() {
 
 export default function Header({ categories }: { categories?: ShopCategory[] }) {
   const { search, setSearch, cartCount, setCartOpen, setChromeHidden } = useShop();
+  const { user, signOutUser } = useAuth();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const router = useRouter();
   const { t } = useLang();
   const browse = categories?.length ? categories : (CATEGORIES as ShopCategory[]);
   const [open, setOpen] = useState(false);
@@ -100,6 +104,30 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
             <div className="flex items-center gap-2 ml-auto">
               <LangToggle />
               <ThemeToggle />
+              <span className="relative">
+                <button
+                  onClick={() => (user ? setAccountOpen((v) => !v) : router.push("/login"))}
+                  className={`relative w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold font-extrabold text-sm ${!user ? "before:content-[''] before:absolute before:-inset-1.5 before:rounded-full before:border-2 before:border-clay before:animate-[tj-ripple_2s_infinite]" : ""}`}
+                  aria-label="Account"
+                >
+                  {user ? (user.displayName?.[0] ?? user.email?.[0] ?? "U").toUpperCase() : <User size={17} />}
+                </button>
+                {user && accountOpen && (
+                  <>
+                    <button aria-label="Close account menu" onClick={() => setAccountOpen(false)} className="fixed inset-0 z-[90] cursor-default bg-transparent" />
+                    <span className="absolute right-0 top-full mt-2 z-[95] min-w-[220px] bg-paper border border-line rounded-2xl shadow-[0_18px_50px_rgba(62,32,12,0.10)] p-3">
+                      <b className="block text-[13px] truncate">{user.displayName || user.email}</b>
+                      {user.displayName && <small className="block text-[11px] text-muted truncate">{user.email}</small>}
+                      <button
+                        onClick={() => { setAccountOpen(false); signOutUser(); }}
+                        className="mt-2 w-full inline-flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] font-bold hover:bg-sand"
+                      >
+                        <LogOut size={14} />{t.signOut}
+                      </button>
+                    </span>
+                  </>
+                )}
+              </span>
               <button onClick={() => setCartOpen(true)} className="relative w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold" aria-label="Cart">
                 <ShoppingBag size={18} /><span className="absolute -top-1 -right-1 min-w-5 h-5 rounded-full bg-clay text-white text-[11px] font-extrabold grid place-items-center px-1">{cartCount}</span>
               </button>

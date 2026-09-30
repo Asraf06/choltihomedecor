@@ -91,3 +91,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
 }
+
+/* Clickable controls get pointer cursor (Tailwind v4 default is arrow).
+   Zero specificity so explicit cursor-default utilities still win. */
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])) {
+  cursor: pointer;
+}

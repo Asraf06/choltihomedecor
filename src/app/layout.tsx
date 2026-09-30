@@ -3,6 +3,7 @@ import { Fraunces, Playfair_Display, Albert_Sans, Hind_Siliguri, Noto_Serif_Beng
 import "./globals.css";
 import { ShopProvider } from "@/lib/store";
 import { LangProvider } from "@/lib/lang";
+import { AuthProvider } from "@/lib/auth-context";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", weight: ["500", "600", "700"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["600", "700"] });
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <ShopProvider>
-          <LangProvider>{children}</LangProvider>
+          <LangProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </LangProvider>
         </ShopProvider>
       </body>
     </html>

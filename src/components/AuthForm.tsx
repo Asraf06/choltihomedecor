@@ -1,0 +1,96 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Mail } from "lucide-react";
+import { useAuth, AuthError } from "@/lib/auth-context";
+import { useLang } from "@/lib/lang";
+
+function messageFor(code: string, t: { errAuth: string; errInUse: string; errWeak: string; errPopup: string; errLinkNeeded: string }) {
+  if (code === "auth/email-already-in-use") return t.errInUse;
+  if (code === "auth/weak-password") return t.errWeak;
+  if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return t.errPopup;
+  if (code === "auth/account-exists-with-different-credential") return t.errLinkNeeded;
+  return t.errAuth;
+}
+
+export default function AuthForm() {
+  const { user, signInGoogle, signInEmail, signUpEmail } = useAuth();
+  const { t } = useLang();
+  const router = useRouter();
+  const [mode, setMode] = useState<"in" | "up">("in");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (window.history.length > 1) router.back();
+      else router.push("/");
+    }
+  }, [user, router]);
+
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await fn();
+    } catch (e) {
+      setError(messageFor(e instanceof AuthError ? e.code : "", t));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-sm bg-paper border border-line rounded-[20px] p-6">
+      <b className="font-serif text-2xl">{mode === "in" ? t.loginTitle : t.signUp}</b>
+      <p className="text-[13px] text-muted mt-1 mb-4">{t.loginSub}</p>
+      {error && <p className="text-[13px] font-bold text-clay mb-3">{error}</p>}
+      <button
+        disabled={busy}
+        onClick={() => run(signInGoogle)}
+          className="w-full inline-flex justify-center items-center gap-2 bg-white border border-line rounded-[35px] py-3 text-[13px] font-bold hover:border-gold disabled:opacity-50 text-[#2B2320]"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+          <path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.5h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5 3.8-8.9z" />
+          <path fill="#34A853" d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.8-2.9c-1 .7-2.4 1.2-4.1 1.2-3.2 0-5.9-2.1-6.8-5l-.1.1-3.7 2.9v.1C3.3 21.3 7.3 24 12 24z" />
+          <path fill="#FBBC05" d="M5.2 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4l-.1-.1-3.6-2.8-.1.1C.5 8.6 0 10.2 0 12s.5 3.4 1.4 4.9l3.8-2.5z" />
+          <path fill="#EA4335" d="M12 4.6c1.8 0 3 .8 3.7 1.4l3.3-3.2C17.9 1.1 15.2 0 12 0 7.3 0 3.3 2.7 1.4 6.8l3.8 2.9c.9-2.9 3.6-5.1 6.8-5.1z" />
+        </svg>
+        {t.googleContinue}
+      </button>
+      <div className="flex items-center gap-3 my-4">
+        <span className="flex-1 h-px bg-line" />
+        <Mail size={14} className="text-muted" />
+        <span className="flex-1 h-px bg-line" />
+      </div>
+      {mode === "up" && (
+        <label className="block text-xs font-bold mb-2.5">
+          {t.yourName}
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
+        </label>
+      )}
+      <label className="block text-xs font-bold mb-2.5">
+        {t.emailAddress}
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" maxLength={80} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
+      </label>
+      <label className="block text-xs font-bold mb-4">
+        {t.passwordLabel}
+        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
+      </label>
+      <button
+        disabled={busy}
+        onClick={() => run(() => (mode === "in" ? signInEmail(email, password) : signUpEmail(name, email, password)))}
+        className="w-full inline-flex justify-center items-center bg-clay text-white rounded-[35px] py-3 text-[13px] font-bold hover:bg-clay-dark disabled:opacity-50"
+      >
+        {mode === "in" ? t.signIn : t.signUp}
+      </button>
+      <button onClick={() => { setMode(mode === "in" ? "up" : "in"); setError(null); }} className="w-full text-center text-[13px] font-bold text-clay mt-3">
+        {mode === "in" ? t.needAccount : t.haveAccount}
+      </button>
+    </div>
+  );
+}

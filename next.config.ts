@@ -19,7 +19,7 @@ const csp = isDev
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' https://images.unsplash.com data: blob:",
-      "connect-src 'self' https://wa.me",
+      "connect-src 'self' https://wa.me https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com",
     ].join("; ");
 
 const nextConfig: NextConfig = {
