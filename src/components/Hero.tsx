@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, ArrowDown, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
-import { WA_LINK } from "@/lib/data";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { HERO_STYLE, BANNER_SLIDES, type BannerSlide } from "@/lib/hero";
 import { useLang, type Lang } from "@/lib/lang";
 
@@ -16,7 +15,7 @@ const THEMES: Record<BannerSlide["theme"], { panel: string; pill: string; soft: 
 };
 
 // Slides admin API theke ase (props), na pele static fallback.
-function BannerHero({ slides }: { slides: BannerSlide[] }) {
+function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean }) {
   const { lang } = useLang();
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -28,11 +27,12 @@ function BannerHero({ slides }: { slides: BannerSlide[] }) {
     return () => clearInterval(timer);
   }, [paused, slides.length]);
 
-  return (
-    <section className="pt-6">
-      <div className="max-w-[1180px] mx-auto px-5">
-        <div
-          className="group relative rounded-3xl overflow-hidden border border-line h-[440px] md:h-[420px]"
+  const boxCls = boxed
+    ? "group relative rounded-3xl overflow-hidden border border-line h-[440px] md:h-[420px]"
+    : "group relative overflow-hidden border-y border-line h-[440px] md:h-[420px]";
+  const box = (
+      <div
+          className={boxCls}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
@@ -42,7 +42,7 @@ function BannerHero({ slides }: { slides: BannerSlide[] }) {
               <div key={s.id} className={`absolute inset-0 transition-opacity duration-500 ${i === safeIdx ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                 <div className={`absolute inset-0 bg-gradient-to-r ${th.panel}`} />
                 <span className="absolute -right-10 -top-16 text-[220px] leading-none text-white/10 select-none">✦</span>
-                <div className="relative h-full grid md:grid-cols-[1.05fr_0.95fr] items-center gap-4 px-6 md:px-12">
+                <div className="relative h-full grid md:grid-cols-[1.05fr_0.95fr] items-center gap-4 px-6 md:px-12 max-w-[1180px] mx-auto w-full">
                   <div key={lang}>
                     <span className={`inline-block text-[10px] md:text-[11px] font-extrabold tracking-[2.4px] rounded-full bg-white/15 text-white px-3 py-1.5`}>
                       {pick(s.eyebrow, lang)}
@@ -92,63 +92,20 @@ function BannerHero({ slides }: { slides: BannerSlide[] }) {
             ))}
           </div>
         </div>
-      </div>
-    </section>
   );
-}
 
-const SLIDES = [
-  { src: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80&auto=format&fit=crop", alt: "premium sofa cover", badge: "SOFA • BED • CUSHION • CURTAIN" },
-  { src: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200&q=80&auto=format&fit=crop", alt: "bedsheet collection", badge: "BEDSHEET COLLECTION" },
-  { src: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1200&q=80&auto=format&fit=crop", alt: "curtain collection", badge: "CURTAIN COLLECTION" },
-];
-
-// Previous editorial hero. Kept because the admin style switcher needs both variants.
-function EditorialHero() {
-  const { t } = useLang();
-  const [idx, setIdx] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setIdx((i) => (i + 1) % SLIDES.length), 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <section className="pt-6">
-      <div className="max-w-[1180px] mx-auto px-5">
-        <div className="rounded-3xl overflow-hidden border border-line grid md:grid-cols-[0.85fr_1.15fr] min-h-[480px] bg-gradient-to-r from-[#F5F0E6] from-[42%] to-cream to-[42%]">
-          <div className="p-8 md:p-[60px]">
-            <div className="text-gold text-lg">✦</div>
-            <div className="eyebrow">{t.heroEyebrow}</div>
-            <h1 className="font-serif text-[38px] md:text-[52px] leading-[1.05] mt-3">{t.heroTitle1}<br /><span className="italic-accent">{t.heroTitle2}</span></h1>
-            <div className="gold-divider" />
-            <p className="text-[14.5px] text-muted">{t.heroDesc}</p>
-            <div className="flex gap-3 flex-wrap mt-5">
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-[22px] py-3 text-[13px] font-bold hover:bg-clay-dark">{t.orderNow} <ArrowRight size={15} /></a>
-              <a href="#products" className="inline-flex items-center gap-2 bg-white border border-line text-forest rounded-[35px] px-[22px] py-3 text-[13px] font-bold">{t.viewProducts} <ArrowDown size={15} /></a>
-            </div>
-            <div className="text-[11px] text-muted mt-3">Sofa Cover • Bedsheet • Cushion Cover • Curtain<br /><span className="stars">★★★★★</span> {t.happy}</div>
-          </div>
-          <div className="relative overflow-hidden min-h-[300px] md:min-h-[480px]">
-            {SLIDES.map((s, i) => (
-              <div key={s.alt} className={`absolute inset-0 transition-opacity duration-500 ${i === idx ? "opacity-100" : "opacity-0"}`}>
-                <Image src={s.src} alt={s.alt} fill className="object-cover" priority={i === 0} sizes="(max-width: 768px) 100vw, 60vw" />
-                <span className="absolute left-[18px] bottom-[18px] bg-forest text-white text-[9px] tracking-[1.6px] font-extrabold rounded-full px-3.5 py-2">{s.badge}</span>
-              </div>
-            ))}
-            <div className="absolute right-[18px] bottom-4 flex gap-2">
-              <button onClick={() => setIdx((idx - 1 + SLIDES.length) % SLIDES.length)} className="w-10 h-10 rounded-full bg-white border border-line grid place-items-center text-forest" aria-label="Prev"><ArrowLeft size={16} /></button>
-              <button onClick={() => setIdx((idx + 1) % SLIDES.length)} className="w-10 h-10 rounded-full bg-white border border-line grid place-items-center text-forest" aria-label="Next"><ArrowRight size={16} /></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  if (boxed) {
+    return (
+      <section className="pt-6">
+        <div className="max-w-[1180px] mx-auto px-5">{box}</div>
+      </section>
+    );
+  }
+  return <section>{box}</section>;
 }
 
 export default function Hero({ initial }: { initial?: { style: string; slides: BannerSlide[] } }) {
   const style = initial?.style ?? HERO_STYLE;
   const slides = initial?.slides?.length ? initial.slides : BANNER_SLIDES;
-  if (style === "banner") return <BannerHero slides={slides} />;
-  return <EditorialHero />;
+  return <BannerHero slides={slides} boxed={style === "boxed"} />;
 }

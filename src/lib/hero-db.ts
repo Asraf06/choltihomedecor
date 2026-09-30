@@ -32,10 +32,14 @@ type Row = {
 
 const absolutize = (src: string) => (src.startsWith("/uploads/") ? `${UPLOADS_BASE}${src}` : src);
 
+const DEFAULT_SLIDE_IMG =
+  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&auto=format&fit=crop";
+
 function toSlide(id: string, r: Row): BannerSlide {
+  const img = String(r.image ?? "").trim();
   return {
     id,
-    img: absolutize(r.image),
+    img: img ? absolutize(img) : DEFAULT_SLIDE_IMG,
     alt: r.title_en,
     badge: { bn: r.badge_bn, en: r.badge_en },
     eyebrow: { bn: r.eyebrow_bn, en: r.eyebrow_en },
@@ -62,7 +66,7 @@ export async function getHero(): Promise<HeroPayload> {
       db.collection("hero_slides").where("active", "==", 1).get(),
     ]);
     const style = cfg.data()?.style;
-    if (style !== "banner" && style !== "editorial") throw new Error("bad style");
+    const resolved = style === "boxed" ? "boxed" : "banner";
     const now = new Date().toISOString();
     const slides = snap.docs
       .map((d) => ({ id: d.id, ...(d.data() as object), order: Number(d.data().sort_order ?? 0) }) as Row & { id: string; order: number })
@@ -70,7 +74,7 @@ export async function getHero(): Promise<HeroPayload> {
       .sort((a, b) => a.order - b.order)
       .map((r) => toSlide(r.id, r));
     if (!slides.length) throw new Error("no slides");
-    return { style, slides };
+    return { style: resolved, slides };
   } catch (e) {
     console.warn("[hero-db] Firestore unreachable, static fallback:", e instanceof Error ? e.message : e);
     return { style: HERO_STYLE, slides: BANNER_SLIDES };

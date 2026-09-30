@@ -1,7 +1,7 @@
-// Hero section config. The admin panel will later manage this same shape in the DB.
-// Switch style with HERO_STYLE: "banner" (ads slider) or "editorial" (split look).
+// Hero section config. The admin panel manages this same shape in the DB.
+// Switch style with HERO_STYLE: "banner" (full-width ads slider) or "boxed" (contained box).
 
-export type HeroStyle = "editorial" | "banner";
+export type HeroStyle = "banner" | "boxed";
 
 export const HERO_STYLE: HeroStyle = "banner";
 

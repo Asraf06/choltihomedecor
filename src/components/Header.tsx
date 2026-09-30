@@ -9,6 +9,7 @@ import { WA_LINK, CATEGORIES } from "@/lib/data";
 import type { ShopCategory } from "@/lib/catalog-db";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 function LangToggle() {
   const { lang, setLang } = useLang();
@@ -84,11 +85,11 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
           </div>
         </div>
 
-        <header className="bg-white/95 backdrop-blur-xl border-b border-line">
+        <header className="bg-paper/95 backdrop-blur-xl border-b border-line">
           <div className="max-w-[1180px] mx-auto px-5 h-[70px] flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 shrink-0">
               <span className="w-10 h-10 rounded-xl bg-forest text-gold grid place-items-center font-serif font-bold text-[22px]">C</span>
-              <span className="leading-none"><b className="font-serif text-[22px] text-forest">Cholti</b><small className="block text-[10px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
+              <span className="leading-none"><b className="font-serif text-[22px] text-forest dark:text-gold">Cholti</b><small className="block text-[10px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
             </Link>
 
             <div className="hidden sm:flex flex-1 max-w-[520px] mx-auto items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]">
@@ -98,7 +99,8 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
 
             <div className="flex items-center gap-2 ml-auto">
               <LangToggle />
-              <button onClick={() => setCartOpen(true)} className="relative w-[42px] h-[42px] rounded-full bg-white border border-line grid place-items-center text-forest" aria-label="Cart">
+              <ThemeToggle />
+              <button onClick={() => setCartOpen(true)} className="relative w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold" aria-label="Cart">
                 <ShoppingBag size={18} /><span className="absolute -top-1 -right-1 min-w-5 h-5 rounded-full bg-clay text-white text-[11px] font-extrabold grid place-items-center px-1">{cartCount}</span>
               </button>
             </div>
@@ -111,7 +113,7 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
             </div>
           </div>
 
-          <nav className="bg-white border-t border-line">
+          <nav className="bg-paper border-t border-line">
             <div className="max-w-[1180px] mx-auto px-5 flex items-center gap-[18px]">
               <div className="relative shrink-0">
                 <button onClick={() => setOpen((v) => !v)} aria-expanded={open} className={`inline-flex items-center gap-2 bg-forest text-white rounded-xl px-4 py-2.5 text-[13px] font-bold my-2.5 whitespace-nowrap ${onCategoryPage ? "ring-2 ring-gold" : ""}`}><Menu size={15} />{t.browse}<ChevronDown size={14} /></button>

@@ -40,7 +40,7 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
                   role="option"
                   aria-selected={sort === s}
                   onClick={() => { setSort(s); setOpen(false); }}
-                  className={`w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold text-left ${sort === s ? "bg-clay-light text-clay" : "hover:bg-sand"}`}
+                  className={`w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold text-left ${sort === s ? "bg-clay-light text-clay dark:bg-clay dark:text-white" : "hover:bg-sand"}`}
                 >
                   <span className={`w-5 grid place-items-center ${sort === s ? "" : "invisible"}`}>
                     <Check size={15} />
@@ -148,7 +148,7 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
             <button
               key={c}
               onClick={() => setCat(c)}
-              className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-white border-line hover:border-gold"}`}
+              className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
             >
               {catName(c)}
               <span className={`text-[11px] rounded-full px-2 py-0.5 ${cat === c ? "bg-white/20" : "bg-sand text-muted"}`}>{counts[c]}</span>
@@ -163,7 +163,7 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
             <button
               key={c}
               onClick={() => setCat(c)}
-              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-white border-line"}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}
             >
               {catName(c)}
               <span className={`text-[11px] ${cat === c ? "text-white/80" : "text-muted"}`}>{counts[c]}</span>

@@ -27,14 +27,14 @@ export default function ProductCard({ product }: { product: Product }) {
         <button
           onClick={() => toggleWish(product.slug)}
           aria-label="wishlist"
-          className={`absolute right-2.5 top-2.5 w-8 h-8 rounded-full grid place-items-center border border-line ${wished ? "bg-clay text-white border-clay" : "bg-white text-forest"}`}
+          className={`absolute right-2.5 top-2.5 w-8 h-8 rounded-full grid place-items-center border border-line ${wished ? "bg-clay text-white border-clay" : "bg-paper text-forest dark:text-gold"}`}
         >
           <Heart size={15} />
         </button>
       </div>
       <div className="p-3 flex flex-col gap-1.5 flex-1">
         <span className="text-[10px] tracking-[1.8px] text-gold font-extrabold uppercase">{product.cat}</span>
-        <div className="text-[14.5px] font-semibold leading-snug line-clamp-2 min-h-10">{product.name}</div>
+        <div className="text-[14.5px] font-semibold leading-snug line-clamp-2 min-h-10 text-ink">{product.name}</div>
         <div className="text-xs text-muted"><span className="stars text-xs">★★★★★</span> {product.rating}</div>
         <div className="flex items-baseline gap-2">
           <span className="text-[13px] text-muted line-through">৳{product.old.toLocaleString()}</span>
@@ -44,7 +44,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <button onClick={add} className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-xs font-bold hover:bg-clay-dark">
             <ShoppingCart size={14} />{t.addToCart}
           </button>
-          <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-white border border-line rounded-[35px] py-2 text-xs font-bold">
+          <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-xs font-bold">
             <Eye size={14} />{t.details}
           </Link>
         </div>

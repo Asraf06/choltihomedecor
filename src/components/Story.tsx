@@ -15,7 +15,7 @@ function Split({ reverse, label, title, img, tags, alt, btn }: { reverse?: boole
           <div className="eyebrow !text-[10px]">{label}</div>
           <h2 className="font-serif text-[28px] md:text-[38px] mt-2">{title}</h2>
           <div className="gold-divider" />
-          <div className="flex gap-2 flex-wrap my-3.5">{tags.map((tg) => <span key={tg} className="bg-white border border-line rounded-full px-3 py-1.5 text-[11px] text-muted">{tg}</span>)}</div>
+          <div className="flex gap-2 flex-wrap my-3.5">{tags.map((tg) => <span key={tg} className="bg-paper border border-line rounded-full px-3 py-1.5 text-[11px] text-muted">{tg}</span>)}</div>
           <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-[22px] py-3 text-[13px] font-bold"><MessageCircle size={15} />{btn}</a>
         </div>
       </div>
@@ -39,7 +39,7 @@ export function Story() {
           <div><div className="eyebrow">{lang === "bn" ? "কুশন কভার" : "Cushion Cover"}</div><h2 className="font-serif text-[32px]">{cushTitle}</h2><div className="gold-divider" /><br /><a href="#products" className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-[22px] py-3 text-[13px] font-bold"><Eye size={15} />{t.storyCushionBtn}</a></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[["photo-1616486338812-3dadae4b4ace", "Floral Touch"], ["photo-1567016432779-094069958ea5", "Modern Style"], ["photo-1586023492125-27b2c045efd7", "Fresh Colour"], ["photo-1493663284031-b7e3aefcae8e", "Elegant Finish"]].map(([id, label]) => (
-              <div key={label} className="bg-white border border-line rounded-[18px] overflow-hidden"><Image src={`https://images.unsplash.com/${id}?w=600&q=80&auto=format&fit=crop`} alt={label} width={400} height={300} className="h-[160px] w-full object-cover" loading="lazy" /><div className="p-2.5"><b className="text-xs block">{label}</b></div></div>
+              <div key={label} className="bg-paper border border-line rounded-[18px] overflow-hidden"><Image src={`https://images.unsplash.com/${id}?w=600&q=80&auto=format&fit=crop`} alt={label} width={400} height={300} className="h-[160px] w-full object-cover" loading="lazy" /><div className="p-2.5"><b className="text-xs block">{label}</b></div></div>
             ))}
           </div>
         </div>
@@ -70,7 +70,7 @@ export function Reviews({ initial }: { initial?: { t: string; n: string; a: stri
       <div className="text-center"><div className="eyebrow">{t.revEyebrow}</div><h2 className="font-serif text-[32px]">{t.revTitleA} <span className="italic-accent">{t.revTitleB}</span></h2><div className="gold-divider center" /></div>
       <div className="marquee overflow-hidden"><div className="marquee-track flex gap-4 w-max px-5">
         {[...source, ...source].map((r, i) => (
-          <div key={i} className="bg-white border border-line rounded-[20px] p-[18px] w-[300px] shrink-0 text-left">
+          <div key={i} className="bg-paper border border-line rounded-[20px] p-[18px] w-[300px] shrink-0 text-left">
             <div className="stars">★★★★★</div><p className="text-[13px] mt-1">{r.t}</p>
             <div className="flex items-center gap-2.5 mt-3"><span className="w-9 h-9 rounded-full bg-gold-soft grid place-items-center font-extrabold text-forest">{r.n[0]}</span><span><b className="text-[13px]">{r.n}</b><small className="block text-muted text-[11px]">{r.a}</small></span><span className="ml-auto bg-forest text-white text-[10px] rounded-full px-2 py-0.5 font-bold">Verified</span></div>
           </div>

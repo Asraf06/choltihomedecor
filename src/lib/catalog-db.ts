@@ -25,8 +25,13 @@ export type ShopReview = { t: string; n: string; a: string };
 
 const absolutize = (src: string) => (src.startsWith("/uploads/") ? `${UPLOADS_BASE}${src}` : src);
 
+// Categories added without an image get a default interior photo instead of an empty circle.
+const DEFAULT_CAT_IMG =
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80&auto=format&fit=crop";
+
 function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
-  const imgs = Array.isArray(v.imgs) && v.imgs.length ? v.imgs : [String(v.img ?? "")];
+  const rawImgs = Array.isArray(v.imgs) && v.imgs.length ? v.imgs : [String(v.img ?? "")];
+  const imgs = (rawImgs as string[]).map((s) => (s.trim() ? absolutize(s.trim()) : DEFAULT_CAT_IMG.replace("w=400", "w=800")));
   return {
     slug: id,
     name: String(v.name ?? ""),
@@ -37,18 +42,19 @@ function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
     now: Number(v.now ?? 0),
     off: Number(v.off ?? 0),
     rating: String(v.rating ?? ""),
-    img: absolutize(String(v.img ?? "")),
-    imgs: (imgs as string[]).map(absolutize),
+    img: imgs[0],
+    imgs,
     badge: v.badge ? String(v.badge) : undefined,
   };
 }
 
 function toCategory(id: string, v: FirebaseFirestore.DocumentData): ShopCategory {
+  const img = String(v.img ?? "").trim();
   return {
     id,
     name: String(v.name ?? ""),
     bn: String(v.bn ?? ""),
-    img: absolutize(String(v.img ?? "")),
+    img: img ? absolutize(img) : DEFAULT_CAT_IMG,
     count: String(v.count_label ?? ""),
     badge: v.badge ? String(v.badge) : undefined,
   };

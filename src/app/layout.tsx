@@ -22,6 +22,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="bn" suppressHydrationWarning className={`${fraunces.variable} ${playfair.variable} ${albert.variable} ${hind.variable} ${notoSerifBn.variable} ${notoSansBn.variable}`}>
       <body suppressHydrationWarning className="min-h-screen">
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('cholti_theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()",
+          }}
+        />
         <ShopProvider>
           <LangProvider>{children}</LangProvider>
         </ShopProvider>

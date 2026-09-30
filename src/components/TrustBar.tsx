@@ -10,7 +10,7 @@ const ITEMS = [
 
 export default function TrustBar() {
   return (
-    <div className="bg-white border-y border-line mt-6">
+    <div className="bg-paper border-y border-line mt-6">
       <div className="max-w-[1180px] mx-auto px-5 py-4 grid grid-cols-2 md:grid-cols-5 gap-3">
         {ITEMS.map((it) => (
           <div key={it.t} className="flex items-center gap-3">

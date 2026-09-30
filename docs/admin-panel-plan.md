@@ -7,7 +7,7 @@
 ## 1. Goal (v1)
 
 Owner can, without touching code:
-1. Switch hero style: `editorial` (old split look) ↔ `banner` (Rokomari-style full-width ads slider).
+1. Switch hero style: `banner` (full-width ads slider) ↔ `boxed` (contained rounded box).
 2. Manage banner slides: add / edit / hide / delete / reorder / schedule.
 3. Manage products, categories, reviews, site settings (WhatsApp number, hotline, announcement).
 4. Upload banner/product images safely.
@@ -28,7 +28,7 @@ Out of scope v1: online payment, customer accounts, order DB (orders go via What
 ```prisma
 model HeroConfig {
   id    Int    @id @default(1)
-  style String @default("banner") // "editorial" | "banner"
+  style String @default("banner") // "banner" | "boxed"
 }
 
 model HeroSlide {

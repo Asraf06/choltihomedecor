@@ -35,7 +35,7 @@ export default function ShopGrid({ fixedCat, initial }: { fixedCat?: string; ini
       {!fixedCat && (
         <div className="flex gap-2.5 justify-center flex-wrap my-[18px]">
           {TAB_IDS.map((id, i) => (
-            <button key={id} onClick={() => setTab(id)} className={`border rounded-[35px] px-[18px] py-2 text-[13px] font-bold ${tab === id ? "bg-clay border-clay text-white" : "bg-white border-line"}`}>
+            <button key={id} onClick={() => setTab(id)} className={`border rounded-[35px] px-[18px] py-2 text-[13px] font-bold ${tab === id ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}>
               {t.tabs[i]}
             </button>
           ))}

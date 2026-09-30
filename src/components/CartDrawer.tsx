@@ -45,15 +45,15 @@ export default function CartDrawer() {
       <aside className="fixed top-0 right-0 h-dvh w-[min(420px,94vw)] bg-paper z-[90] rounded-l-[20px] border-l border-line flex flex-col">
         <div className="p-[18px] border-b border-line flex justify-between items-center">
           <b className="font-serif text-lg">{t.checkout}</b>
-          <button onClick={() => setCartOpen(false)} className="w-[42px] h-[42px] rounded-full bg-white border border-line grid place-items-center" aria-label="Close"><X size={17} /></button>
+          <button onClick={() => setCartOpen(false)} className="w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center" aria-label="Close"><X size={17} /></button>
         </div>
         <div className="p-[18px] overflow-auto flex-1 flex flex-col gap-3.5">
           {!cart.length ? <p className="text-center text-muted text-sm py-5">{t.cartEmpty}</p> :
             cart.map((c, i) => (
-              <div key={i} className="flex gap-3 items-center border border-line rounded-[14px] p-2.5 bg-white">
+              <div key={i} className="flex gap-3 items-center border border-line rounded-[14px] p-2.5 bg-paper">
                 <Image src={c.img} alt={c.name} width={64} height={64} className="w-16 h-16 rounded-xl object-cover" />
                 <div className="flex-1">
-                  <b className="text-xs block leading-snug">{c.name}</b>
+                  <b className="text-xs block leading-snug text-ink">{c.name}</b>
                   <small className="text-muted">{c.fabric}</small>
                   <div className="flex justify-between items-center mt-1.5">
                     <span className="flex items-center gap-2 border border-line rounded-full px-2 py-1">
