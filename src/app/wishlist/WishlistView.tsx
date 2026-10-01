@@ -21,8 +21,8 @@ export default function WishlistView() {
           <span className="mx-auto w-14 h-14 rounded-full bg-gold-soft grid place-items-center text-forest">
             <Heart size={24} />
           </span>
-          <p className="text-muted text-sm mt-4">{t.wishlistEmpty}</p>
-          <Link href="/shop" className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-6 py-3 text-[13px] font-bold mt-4">
+          <p className="text-muted text-lg mt-4">{t.wishlistEmpty}</p>
+          <Link href="/shop" className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-6 py-3 text-[17px] font-bold mt-4">
             {t.viewShop}
           </Link>
         </div>

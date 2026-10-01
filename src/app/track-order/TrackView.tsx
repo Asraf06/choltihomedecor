@@ -6,6 +6,7 @@ import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
+import { useSettings } from "@/lib/settings-context";
 
 const TRACK_MSG = "Assalamu alaikum, I want to track my order.";
 
@@ -19,6 +20,7 @@ type Order = {
 
 export default function TrackView() {
   const { t, lang } = useLang();
+  const settings = useSettings();
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[] | null>(null);
   const steps =
@@ -40,7 +42,7 @@ export default function TrackView() {
     <main className="max-w-[1180px] mx-auto px-5 py-8">
       <h1 className="font-serif text-4xl">{t.trackOrder}</h1>
       <div className="gold-divider" />
-      <p className="text-sm text-muted max-w-[560px]">
+      <p className="text-lg text-muted max-w-[560px]">
         {lang === "bn"
           ? "অর্ডারের পর ২-৪ দিনে ডেলিভারি পাবেন। আপডেট জানতে নিচের বাটনে মেসেজ করুন।"
           : "Delivery arrives in 2-4 days after ordering. Message below anytime for an update."}
@@ -51,7 +53,7 @@ export default function TrackView() {
             <span className="w-10 h-10 rounded-full bg-forest text-white grid place-items-center font-serif font-bold shrink-0">
               {i + 1}
             </span>
-            <b className="text-sm">{s}</b>
+            <b className="text-lg">{s}</b>
           </div>
         ))}
       </div>
@@ -61,9 +63,9 @@ export default function TrackView() {
             {lang === "bn" ? "আমার অর্ডার" : "My Orders"}
           </h2>
           {!orders ? (
-            <p className="text-sm text-muted">...</p>
+            <p className="text-lg text-muted">...</p>
           ) : !orders.length ? (
-            <p className="text-sm text-muted">
+            <p className="text-lg text-muted">
               {lang === "bn" ? "এখনো কোনো অর্ডার নেই।" : "No orders yet."}
             </p>
           ) : (
@@ -74,14 +76,14 @@ export default function TrackView() {
                     <Package size={18} />
                   </span>
                   <div className="flex-1 min-w-0">
-                    <b className="text-[13px] block truncate">
+                    <b className="text-[17px] block truncate">
                       {o.items.map((it) => `${it.name} x${it.qty}`).join(", ")}
                     </b>
-                    <small className="text-muted text-[11px]">
+                    <small className="text-muted text-[15px]">
                       {String(o.created_at).slice(0, 10)} • {o.total.toLocaleString()}৳
                     </small>
                   </div>
-                  <span className="bg-forest text-white text-[10px] font-extrabold rounded-full px-2.5 py-1 shrink-0">
+                  <span className="bg-forest text-white text-[14px] font-extrabold rounded-full px-2.5 py-1 shrink-0">
                     {lang === "bn" && o.status === "pending" ? "পেন্ডিং" : o.status}
                   </span>
                 </div>
@@ -91,15 +93,15 @@ export default function TrackView() {
         </div>
       )}
       <a
-        href={`https://wa.me/8801711387707?text=${encodeURIComponent(TRACK_MSG)}`}
+        href={`https://wa.me/${settings.wa_number}?text=${encodeURIComponent(TRACK_MSG)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-6 py-3 text-[13px] font-bold mt-6"
+        className="inline-flex items-center gap-2 bg-clay text-white rounded-[35px] px-6 py-3 text-[17px] font-bold mt-6"
       >
         <MessageCircle size={15} />
         {lang === "bn" ? "হোয়াটসঅ্যাপে ট্র্যাক করুন" : "Track on WhatsApp"}
       </a>
-      <p className="flex items-center gap-2 text-[12px] text-muted mt-3">
+      <p className="flex items-center gap-2 text-[16px] text-muted mt-3">
         <PackageCheck size={14} />
         {lang === "bn" ? "ডেলিভারির সময় পণ্য হাতে পেয়ে টাকা দিন।" : "Pay cash when the delivery arrives."}
       </p>

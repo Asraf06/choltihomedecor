@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronDown, Check, ArrowUpDown, X, Search } from "lucide-react";
 import { PRODUCTS, CATEGORIES, type Product } from "@/lib/data";
-import type { ShopCategory } from "@/lib/catalog-db";
+import type { ShopCategory, ShopSub } from "@/lib/catalog-db";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import ProductCard from "./ProductCard";
@@ -17,14 +18,14 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
   const current = t.sortOpts[SORTS.indexOf(sort)] ?? t.sortOpts[0];
 
   return (
-    <span className="inline-flex items-center gap-2 text-[13px]">
+    <span className="inline-flex items-center gap-2 text-[17px]">
       <span className="text-muted font-bold hidden sm:inline">{t.sortBy}</span>
       <span className="relative">
         <button
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-haspopup="listbox"
-          className={`inline-flex items-center gap-2 bg-paper border rounded-full pl-4 pr-3 py-2 text-[13px] font-bold ${open ? "border-clay" : "border-line hover:border-gold"}`}
+          className={`inline-flex items-center gap-2 bg-paper border rounded-full pl-4 pr-3 py-2 text-[17px] font-bold ${open ? "border-clay" : "border-line hover:border-gold"}`}
         >
           <ArrowUpDown size={14} className="text-clay" />
           {current}
@@ -40,7 +41,7 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
                   role="option"
                   aria-selected={sort === s}
                   onClick={() => { setSort(s); setOpen(false); }}
-                  className={`w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold text-left ${sort === s ? "bg-clay-light text-clay dark:bg-clay dark:text-white" : "hover:bg-sand"}`}
+                  className={`w-full flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[17px] font-bold text-left ${sort === s ? "bg-clay-light text-clay dark:bg-clay dark:text-white" : "hover:bg-sand"}`}
                 >
                   <span className={`w-5 grid place-items-center ${sort === s ? "" : "invisible"}`}>
                     <Check size={15} />
@@ -57,13 +58,19 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
 }
 
 // Shop layout: sticky category sidebar on the left, sort dropdown above the grid on the right.
-export default function ShopCatalog({ initial, categories }: { initial?: Product[]; categories?: ShopCategory[] }) {
+// Categories with subcategories fold/unfold (chevron). Picking a sub filters the grid.
+export default function ShopCatalog({ initial, categories, subs, initialCat = "all", initialSub = "all" }: { initial?: Product[]; categories?: ShopCategory[]; subs?: ShopSub[]; initialCat?: string; initialSub?: string }) {
   const { t, lang } = useLang();
   const { search, setSearch, chromeHidden } = useShop();
-  const [cat, setCat] = useState("all");
+  const router = useRouter();
+  const [cat, setCat] = useState(initialCat);
+  const [sub, setSub] = useState(initialSub);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(initialCat !== "all" ? { [initialCat]: true } : {});
   const [sort, setSort] = useState("featured");
   const source = initial?.length ? initial : PRODUCTS;
   const cats = categories?.length ? categories : (CATEGORIES as ShopCategory[]);
+  const allSubs = subs ?? [];
+  const subsOf = (c: string) => allSubs.filter((s) => s.cat === c);
 
   const catIds = ["all", ...cats.map((c) => c.id)];
   const catName = (c: string) => {
@@ -72,6 +79,25 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
     if (!found) return c;
     return lang === "bn" && found.bn ? found.bn : found.name;
   };
+  const subName = (s: ShopSub) => (lang === "bn" && s.bn ? s.bn : s.name);
+
+  const selectCat = (c: string) => {
+    setCat(c);
+    setSub("all");
+    if (c !== "all" && subsOf(c).length) setExpanded((e) => ({ ...e, [c]: true }));
+    // Stay in shop, only the URL updates: /shop, /shop/sofa, /shop/sofa/turkish-print
+    router.replace(c === "all" ? "/shop" : `/shop/${c}`, { scroll: false });
+  };
+  const selectSub = (c: string, s: string) => {
+    setCat(c);
+    setSub(s);
+    setExpanded((e) => ({ ...e, [c]: true }));
+    router.replace(s === "all" || s === "" ? `/shop/${c}` : `/shop/${c}/${s}`, { scroll: false });
+  };
+  const selectSubOnly = (s: string) => {
+    setSub(s);
+    router.replace(s === "all" || s === "" ? `/shop/${cat}` : `/shop/${cat}/${s}`, { scroll: false });
+  };
 
   const counts = useMemo(() => {
     const m: Record<string, number> = { all: source.length };
@@ -79,53 +105,69 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
     return m;
   }, [source, cats]);
 
+  const subCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const s of allSubs) m[s.id] = source.filter((p) => p.sub === s.id).length;
+    return m;
+  }, [source, subs]);
+
+  const directCount = (c: string) => source.filter((p) => p.cat === c && !p.sub).length;
+
   const list = useMemo(() => {
     const q = search.trim().toLowerCase();
     const filtered = source.filter(
       (p) =>
         (cat === "all" || p.cat === cat) &&
+        (sub === "all" ? true : sub === "" ? !p.sub : p.sub === sub) &&
         (!q || `${p.name} ${p.bn} ${p.cat}`.toLowerCase().includes(q))
     );
     if (sort === "low") filtered.sort((a, b) => a.now - b.now);
     if (sort === "high") filtered.sort((a, b) => b.now - a.now);
     if (sort === "off") filtered.sort((a, b) => b.off - a.off);
     return filtered;
-  }, [cat, sort, search]);
+  }, [cat, sub, sort, search]);
 
   const q = search.trim();
-  const hasActive = cat !== "all" || sort !== "featured" || q !== "";
+  const hasActive = cat !== "all" || sub !== "all" || sort !== "featured" || q !== "";
   const clearAll = () => {
     setCat("all");
+    setSub("all");
     setSort("featured");
     setSearch("");
+    router.replace("/shop", { scroll: false });
   };
 
   const activeFilters = (
     <div className="mt-5 pt-4 border-t border-line">
       <div className="flex items-center justify-between mb-2">
-        <b className="text-[13px]">{t.activeFilters}</b>
+        <b className="text-[17px]">{t.activeFilters}</b>
         {hasActive && (
-          <button onClick={clearAll} className="inline-flex items-center gap-1 text-[12px] font-bold text-clay hover:text-clay-dark">
+          <button onClick={clearAll} className="inline-flex items-center gap-1 text-[16px] font-bold text-clay hover:text-clay-dark">
             <X size={13} />{t.clearAll}
           </button>
         )}
       </div>
       {!hasActive ? (
-        <p className="text-[12px] text-muted">{t.noFilters}</p>
+        <p className="text-[16px] text-muted">{t.noFilters}</p>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {cat !== "all" && (
-            <button onClick={() => setCat("all")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[11.5px] font-bold pl-3 pr-2 py-1.5">
+            <button onClick={() => selectCat("all")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
               {catName(cat)}<X size={12} />
             </button>
           )}
+          {sub !== "all" && (
+            <button onClick={() => selectSubOnly("all")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
+              {sub === "" ? (lang === "bn" ? "সরাসরি" : "Direct") : (allSubs.find((s) => s.id === sub)?.name ?? sub)}<X size={12} />
+            </button>
+          )}
           {sort !== "featured" && (
-            <button onClick={() => setSort("featured")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[11.5px] font-bold pl-3 pr-2 py-1.5">
+            <button onClick={() => setSort("featured")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
               {t.sortOpts[SORTS.indexOf(sort)]}<X size={12} />
             </button>
           )}
           {q !== "" && (
-            <button onClick={() => setSearch("")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[11.5px] font-bold pl-3 pr-2 py-1.5">
+            <button onClick={() => setSearch("")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
               <Search size={12} />{q.length > 18 ? `${q.slice(0, 18)}…` : q}<X size={12} />
             </button>
           )}
@@ -142,18 +184,66 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
         style={{ top: chromeHidden ? 16 : 170 }}
         className="hidden lg:block w-60 shrink-0 bg-paper border border-line rounded-[20px] p-4 sticky max-h-[calc(100vh-190px)] overflow-y-auto transition-[top] duration-300"
       >
-        <b className="text-[13px] block mb-2">{t.categories}</b>
+        <b className="text-[17px] block mb-2">{t.categories}</b>
         <div className="flex flex-col gap-1.5">
-          {catIds.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
-            >
-              {catName(c)}
-              <span className={`text-[11px] rounded-full px-2 py-0.5 ${cat === c ? "bg-white/20" : "bg-sand text-muted"}`}>{counts[c]}</span>
-            </button>
-          ))}
+          <button
+            onClick={() => selectCat("all")}
+            className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[17px] font-bold border ${cat === "all" && sub === "all" ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
+          >
+            {catName("all")}
+            <span className={`text-[15px] rounded-full px-2 py-0.5 ${cat === "all" && sub === "all" ? "bg-white/20" : "bg-sand text-muted"}`}>{counts["all"]}</span>
+          </button>
+          {cats.map((c) => {
+            const children = subsOf(c.id);
+            const isOpen = !!expanded[c.id];
+            const isActive = cat === c.id;
+            return (
+              <div key={c.id}>
+                <div className={`flex items-center rounded-xl border ${isActive ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}>
+                  <button
+                    onClick={() => selectCat(c.id)}
+                    className="flex-1 flex justify-between items-center pl-3.5 pr-1 py-2.5 text-[17px] font-bold text-left"
+                  >
+                    {catName(c.id)}
+                    <span className={`text-[15px] rounded-full px-2 py-0.5 ${isActive ? "bg-white/20" : "bg-sand text-muted"}`}>{counts[c.id]}</span>
+                  </button>
+                  {!!children.length && (
+                    <button
+                      onClick={() => setExpanded((e) => ({ ...e, [c.id]: !e[c.id] }))}
+                      aria-expanded={isOpen}
+                      aria-label={`${isOpen ? "Collapse" : "Expand"} ${c.name} subcategories`}
+                      className="w-9 h-9 grid place-items-center shrink-0"
+                    >
+                      <ChevronDown size={15} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+                  )}
+                </div>
+                {isOpen && !!children.length && (
+                  <div className="flex flex-col gap-1 mt-1 ml-3 pl-3 border-l-2 border-line">
+                    {children.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => selectSub(c.id, s.id)}
+                        className={`flex justify-between items-center rounded-lg px-3 py-2 text-[16.5px] font-bold border ${sub === s.id && isActive ? "bg-forest border-forest text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
+                      >
+                        {subName(s)}
+                        <span className={`text-[15px] rounded-full px-2 py-0.5 ${sub === s.id && isActive ? "bg-white/20" : "bg-sand text-muted"}`}>{subCounts[s.id] ?? 0}</span>
+                      </button>
+                    ))}
+                    {!!directCount(c.id) && (
+                      <button
+                        onClick={() => selectSub(c.id, "")}
+                        className={`flex justify-between items-center rounded-lg px-3 py-2 text-[16.5px] font-bold border ${sub === "" && isActive ? "bg-forest border-forest text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
+                      >
+                        {lang === "bn" ? "সরাসরি" : "Direct"}
+                        <span className={`text-[15px] rounded-full px-2 py-0.5 ${sub === "" && isActive ? "bg-white/20" : "bg-sand text-muted"}`}>{directCount(c.id)}</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         {activeFilters}
       </aside>
@@ -162,19 +252,46 @@ export default function ShopCatalog({ initial, categories }: { initial?: Product
           {catIds.map((c) => (
             <button
               key={c}
-              onClick={() => setCat(c)}
-              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold border ${cat === c ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}
+              onClick={() => selectCat(c)}
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[17px] font-bold border ${cat === c && sub === "all" ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}
             >
               {catName(c)}
-              <span className={`text-[11px] ${cat === c ? "text-white/80" : "text-muted"}`}>{counts[c]}</span>
+              <span className={`text-[15px] ${cat === c && sub === "all" ? "text-white/80" : "text-muted"}`}>{counts[c]}</span>
             </button>
           ))}
         </div>
+        {cat !== "all" && !!subsOf(cat).length && (
+          <div className="lg:hidden flex gap-2 overflow-x-auto whitespace-nowrap pb-3 -mx-5 px-5 -mt-1">
+            <button
+              onClick={() => selectSubOnly("all")}
+              className={`shrink-0 rounded-full px-4 py-1.5 text-[16px] font-bold border ${sub === "all" ? "bg-forest border-forest text-white" : "bg-paper border-line"}`}
+            >
+              {t.all} ({counts[cat]})
+            </button>
+            {subsOf(cat).map((s) => (
+              <button
+                key={s.id}
+                onClick={() => selectSubOnly(s.id)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-[16px] font-bold border ${sub === s.id ? "bg-forest border-forest text-white" : "bg-paper border-line"}`}
+              >
+                {subName(s)} ({subCounts[s.id] ?? 0})
+              </button>
+            ))}
+            {!!directCount(cat) && (
+              <button
+                onClick={() => selectSubOnly("")}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-[16px] font-bold border ${sub === "" ? "bg-forest border-forest text-white" : "bg-paper border-line"}`}
+              >
+                {lang === "bn" ? "সরাসরি" : "Direct"} ({directCount(cat)})
+              </button>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3 mb-4">
-          <span className="flex items-center gap-2 text-[13px] text-muted">
+          <span className="flex items-center gap-2 text-[17px] text-muted">
             {list.length} {t.items}
             {hasActive && (
-              <button onClick={clearAll} className="inline-flex items-center gap-1 text-[12px] font-bold text-clay hover:text-clay-dark">
+              <button onClick={clearAll} className="inline-flex items-center gap-1 text-[16px] font-bold text-clay hover:text-clay-dark">
                 <X size={13} />{t.clearAll}
               </button>
             )}

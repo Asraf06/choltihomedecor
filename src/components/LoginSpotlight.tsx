@@ -63,7 +63,7 @@ export default function LoginSpotlight() {
           </span>
         </span>
         <h2 className="font-serif text-[20px] md:text-[27px] leading-[1.15] mt-3 md:mt-3 max-w-[380px]">{t.spotTitle}</h2>
-        <p className="hidden md:block text-[12px] text-[#c8d7d2] mt-1.5 max-w-[360px]">{t.spotSub}</p>
+        <p className="hidden md:block text-[16px] text-[#c8d7d2] mt-1.5 max-w-[360px]">{t.spotSub}</p>
       </div>
 
       {/* Desktop: all benefits together, static */}
@@ -74,8 +74,8 @@ export default function LoginSpotlight() {
               <Icon size={18} />
             </span>
             <span>
-              <b className="block text-[14px]">{title}</b>
-              <small className="block text-[11px] text-[#e2d9c8]">{sub}</small>
+              <b className="block text-[16px]">{title}</b>
+              <small className="block text-[15px] text-[#e2d9c8]">{sub}</small>
             </span>
           </div>
         ))}
@@ -94,8 +94,8 @@ export default function LoginSpotlight() {
             <current.Icon size={18} />
           </span>
           <span className="min-w-0">
-            <b className="block text-[13px] truncate">{current.title}</b>
-            <small className="block text-[11px] text-[#e2d9c8] truncate">{current.sub}</small>
+            <b className="block text-[17px] truncate">{current.title}</b>
+            <small className="block text-[15px] text-[#e2d9c8] truncate">{current.sub}</small>
           </span>
         </div>
         <div className="flex items-center gap-1.5 mt-2.5">

@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import ShopCatalog from "@/components/ShopCatalog";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
-import { getProducts, getCategories } from "@/lib/catalog-db";
+import { getProducts, getCategories, getSubcategories } from "@/lib/catalog-db";
 
 export const metadata: Metadata = {
   title: "Shop All Products - Cholti Home Decor",
@@ -13,13 +13,13 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ShopPage() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const [products, categories, subs] = await Promise.all([getProducts(), getCategories(), getSubcategories()]);
 
   return (
     <>
       <Header categories={categories} />
       <main className="max-w-[1180px] mx-auto px-5 py-8">
-        <ShopCatalog initial={products} categories={categories} />
+        <ShopCatalog initial={products} categories={categories} subs={subs} />
       </main>
       <CTA />
       <Footer />

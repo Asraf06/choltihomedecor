@@ -7,7 +7,7 @@ import {
   X, Home, ShoppingBag, Flame, Heart, Info, Phone, Package, Tag, Sun, Moon,
 } from "lucide-react";
 import { useLang } from "@/lib/lang";
-import { WA_LINK } from "@/lib/data";
+import { useSettings, waLink, telLink } from "@/lib/settings-context";
 
 const LINKS = [
   { href: "/", key: "home", Icon: Home },
@@ -22,6 +22,7 @@ const LINKS = [
 export default function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
   const { t, lang, setLang } = useLang();
+  const settings = useSettings();
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
                 key={href + key}
                 href={href}
                 onClick={onClose}
-                className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-[14px] font-bold ${active ? "bg-clay text-white" : "hover:bg-sand"}`}
+                className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-[16px] font-bold ${active ? "bg-clay text-white" : "hover:bg-sand"}`}
               >
                 <Icon size={17} />
                 {t[key]}
@@ -87,37 +88,37 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
           <a
             href="/shop"
             onClick={onClose}
-            className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[14px] font-bold hover:bg-sand"
+            className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[16px] font-bold hover:bg-sand"
           >
             <Tag size={17} />
             {t.offers}
-            <span className="bg-clay text-white text-[10px] font-extrabold rounded-full px-1.5 py-0.5 ml-auto">HOT</span>
+            <span className="bg-clay text-white text-[14px] font-extrabold rounded-full px-1.5 py-0.5 ml-auto">HOT</span>
           </a>
         </nav>
 
         <div className="p-4 border-t border-line flex flex-col gap-3 mt-auto">
           <div>
-            <small className="block text-[11px] font-bold text-muted mb-1.5">Language / ভাষা</small>
+            <small className="block text-[15px] font-bold text-muted mb-1.5">Language / ভাষা</small>
             <span className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-sand border border-line">
-              <button onClick={() => setLang("bn")} className={`rounded-xl py-2.5 text-[13px] font-extrabold ${lang === "bn" ? "bg-forest text-white" : "text-muted"}`}>বাংলা</button>
-              <button onClick={() => setLang("en")} className={`rounded-xl py-2.5 text-[13px] font-extrabold ${lang === "en" ? "bg-forest text-white" : "text-muted"}`}>English</button>
+              <button onClick={() => setLang("bn")} className={`rounded-xl py-2.5 text-[17px] font-extrabold ${lang === "bn" ? "bg-forest text-white" : "text-muted"}`}>বাংলা</button>
+              <button onClick={() => setLang("en")} className={`rounded-xl py-2.5 text-[17px] font-extrabold ${lang === "en" ? "bg-forest text-white" : "text-muted"}`}>English</button>
             </span>
           </div>
           <div>
-            <small className="block text-[11px] font-bold text-muted mb-1.5">Theme</small>
+            <small className="block text-[15px] font-bold text-muted mb-1.5">Theme</small>
             <span className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-sand border border-line">
-              <button onClick={() => setTheme(false)} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[13px] font-extrabold ${!isDark ? "bg-forest text-white" : "text-muted"}`}>
+              <button onClick={() => setTheme(false)} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[17px] font-extrabold ${!isDark ? "bg-forest text-white" : "text-muted"}`}>
                 <Sun size={15} />Light
               </button>
-              <button onClick={() => setTheme(true)} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[13px] font-extrabold ${isDark ? "bg-forest text-white" : "text-muted"}`}>
+              <button onClick={() => setTheme(true)} className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[17px] font-extrabold ${isDark ? "bg-forest text-white" : "text-muted"}`}>
                 <Moon size={15} />Dark
               </button>
             </span>
           </div>
-          <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] py-3 text-[13px] font-bold">
+          <a href={waLink(settings)} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] py-3 text-[17px] font-bold">
             <Phone size={15} />{t.waOrder}
           </a>
-          <a href="tel:+8801711387707" className="text-center text-[12px] font-bold text-muted">Hotline: 01711-387707</a>
+          <a href={telLink(settings)} className="text-center text-[16px] font-bold text-muted">Hotline: {settings.hotline}</a>
         </div>
       </aside>
     </div>

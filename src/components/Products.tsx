@@ -19,7 +19,7 @@ export default function Products({ initial }: { initial?: Product[] }) {
           <div className="eyebrow">{t.prodEyebrow}</div>
           <h2 className="font-serif text-4xl">{t.prodTitleA} <span className="italic-accent">{t.prodTitleB}</span></h2>
           <div className="gold-divider center" />
-          <p className="text-sm text-muted">{t.prodSub}</p>
+          <p className="text-lg text-muted">{t.prodSub}</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {featured.map((p) => (
@@ -27,7 +27,7 @@ export default function Products({ initial }: { initial?: Product[] }) {
           ))}
         </div>
         <div className="text-center mt-7">
-          <Link href="/shop" className="inline-flex items-center gap-2 bg-forest text-white rounded-[35px] px-6 py-3 text-[13px] font-bold">
+          <Link href="/shop" className="inline-flex items-center gap-2 bg-forest text-white rounded-[35px] px-6 py-3 text-[17px] font-bold">
             {t.viewShop} <ArrowRight size={15} />
           </Link>
         </div>

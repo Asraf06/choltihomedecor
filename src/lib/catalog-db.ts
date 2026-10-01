@@ -21,6 +21,7 @@ function fsdb() {
 }
 
 export type ShopCategory = { id: string; name: string; bn: string; img: string; count: string; badge?: string };
+export type ShopSub = { id: string; cat: string; name: string; bn: string; img: string; count: string; badge?: string };
 export type ShopReview = { t: string; n: string; a: string };
 
 const absolutize = (src: string) => (src.startsWith("/uploads/") ? `${UPLOADS_BASE}${src}` : src);
@@ -37,6 +38,7 @@ function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
     name: String(v.name ?? ""),
     bn: String(v.bn ?? ""),
     cat: String(v.cat ?? ""),
+    sub: String(v.sub ?? ""),
     tags: Array.isArray(v.tags) ? v.tags : [],
     old: Number(v.old ?? 0),
     now: Number(v.now ?? 0),
@@ -52,6 +54,19 @@ function toCategory(id: string, v: FirebaseFirestore.DocumentData): ShopCategory
   const img = String(v.img ?? "").trim();
   return {
     id,
+    name: String(v.name ?? ""),
+    bn: String(v.bn ?? ""),
+    img: img ? absolutize(img) : DEFAULT_CAT_IMG,
+    count: String(v.count_label ?? ""),
+    badge: v.badge ? String(v.badge) : undefined,
+  };
+}
+
+function toSub(id: string, v: FirebaseFirestore.DocumentData): ShopSub {
+  const img = String(v.img ?? "").trim();
+  return {
+    id,
+    cat: String(v.cat ?? ""),
     name: String(v.name ?? ""),
     bn: String(v.bn ?? ""),
     img: img ? absolutize(img) : DEFAULT_CAT_IMG,
@@ -95,6 +110,19 @@ export async function getCategories(): Promise<ShopCategory[]> {
   } catch (e) {
     console.warn("[catalog-db] categories fallback:", e instanceof Error ? e.message : e);
     return CATEGORIES as ShopCategory[];
+  }
+}
+
+export async function getSubcategories(cat?: string): Promise<ShopSub[]> {
+  try {
+    const docs = await activeDocs("subcategories");
+    if (!docs.length) return [];
+    const withOrder = docs.map((d) => ({ order: Number(d.data().sort_order ?? 0), s: toSub(d.id, d.data()) }));
+    const all = withOrder.sort((a, b) => a.order - b.order).map((x) => x.s);
+    return cat ? all.filter((s) => s.cat === cat) : all;
+  } catch (e) {
+    console.warn("[catalog-db] subcategories fallback:", e instanceof Error ? e.message : e);
+    return [];
   }
 }
 

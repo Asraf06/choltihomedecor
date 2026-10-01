@@ -9,6 +9,7 @@ export type Product = {
   name: string;
   bn: string;
   cat: string;
+  sub?: string;
   tags: string[];
   old: number;
   now: number;

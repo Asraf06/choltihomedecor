@@ -1,8 +1,7 @@
-import { WA_NUMBER } from "./data";
 import { z } from "zod";
 
-export const waProductLink = (productName: string) =>
-  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+export const waProductLink = (waNumber: string, productName: string) =>
+  `https://wa.me/${waNumber}?text=${encodeURIComponent(
     `Assalamu alaikum, I want ${productName}`
   )}`;
 
@@ -35,5 +34,5 @@ export function buildOrderMessage(
   )}, Phone: ${clean(form.phone)}, Address: ${clean(form.address)}`.slice(0, 1500);
 }
 
-export const waOrderLink = (msg: string) =>
-  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+export const waOrderLink = (waNumber: string, msg: string) =>
+  `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;

@@ -28,8 +28,8 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
   }, [paused, slides.length]);
 
   const boxCls = boxed
-    ? "group relative rounded-3xl overflow-hidden border border-line h-[340px] md:h-[300px]"
-    : "group relative overflow-hidden border-y border-line h-[340px] md:h-[300px]";
+    ? "group relative rounded-3xl overflow-hidden border border-line h-[470px] md:h-[300px]"
+    : "group relative overflow-hidden border-y border-line h-[470px] md:h-[300px]";
   const box = (
       <div
           className={boxCls}
@@ -42,28 +42,35 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
               <div key={s.id} className={`absolute inset-0 transition-opacity duration-500 ${i === safeIdx ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                 <div className={`absolute inset-0 bg-gradient-to-r ${th.panel}`} />
                 <span className="absolute -right-10 -top-16 text-[220px] leading-none text-white/10 select-none">✦</span>
-                <div className="relative h-full grid md:grid-cols-[1.05fr_0.95fr] items-center gap-4 px-6 md:px-12 max-w-[1180px] mx-auto w-full">
-                  <div key={lang}>
-                    <span className={`inline-block text-[10px] md:text-[11px] font-extrabold tracking-[2.4px] rounded-full bg-white/15 text-white px-3 py-1.5`}>
+                <div className="relative h-full flex flex-col md:grid md:grid-cols-[1.05fr_0.95fr] md:items-center gap-3 md:gap-4 px-6 md:px-12 pb-12 md:pb-0 max-w-[1180px] mx-auto w-full">
+                  {/* Mobile: image on top, fully visible */}
+                  <div className="sm:hidden relative w-full h-[205px] shrink-0 mt-4 rounded-2xl overflow-hidden border border-white/40 order-1">
+                    <Image src={s.img} alt={s.alt} fill className="object-cover" sizes="90vw" priority={i === 0} />
+                    <span className="absolute left-2 bottom-2 bg-forest text-white text-[14px] tracking-[1.4px] font-extrabold rounded-full px-3 py-1.5 border border-white/30">
+                      {pick(s.badge, lang)}
+                    </span>
+                  </div>
+                  <div key={lang} className="order-2 md:order-1">
+                    <span className={`inline-block text-[14px] md:text-[15px] font-extrabold tracking-[2.4px] rounded-full bg-white/15 text-white px-3 py-1.5`}>
                       {pick(s.eyebrow, lang)}
                     </span>
                     <h2 className="font-serif text-white text-[24px] sm:text-[26px] md:text-[34px] leading-[1.1] mt-2">
                       {pick(s.title, lang)}
                     </h2>
-                    <p className={`text-[12px] md:text-[13px] mt-1.5 max-w-[440px] ${th.soft}`}>{pick(s.sub, lang)}</p>
+                    <p className={`text-[16px] md:text-[17px] mt-1.5 max-w-[440px] ${th.soft}`}>{pick(s.sub, lang)}</p>
                     <a
                       href={s.link.startsWith("#") ? s.link : s.link}
                       {...(s.link.startsWith("#") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
-                      className={`inline-flex items-center gap-2 rounded-[35px] px-5 py-2.5 text-[13px] font-extrabold mt-3 ${th.pill}`}
+                      className={`inline-flex items-center gap-2 rounded-[35px] px-5 py-2.5 text-[17px] font-extrabold mt-3 ${th.pill}`}
                     >
                       {pick(s.cta, lang)} <ArrowRight size={15} />
                     </a>
                   </div>
-                  <div className="relative hidden sm:block h-full">
+                  <div className="relative hidden sm:block h-full order-1 md:order-2">
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[86%] h-[78%] rounded-[24px] overflow-hidden border-2 border-white/40 shadow-[0_18px_50px_rgba(0,0,0,0.30)]">
                       <Image src={s.img} alt={s.alt} fill className="object-cover" sizes="(max-width: 768px) 0vw, 40vw" priority={i === 0} />
                     </div>
-                    <span className="absolute left-2 bottom-8 bg-forest text-white text-[10px] tracking-[1.4px] font-extrabold rounded-full px-3 py-1.5 border border-white/30">
+                    <span className="absolute left-2 bottom-8 bg-forest text-white text-[14px] tracking-[1.4px] font-extrabold rounded-full px-3 py-1.5 border border-white/30">
                       {pick(s.badge, lang)}
                     </span>
                   </div>
@@ -71,11 +78,6 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
               </div>
             );
           })}
-
-          {/* mobile image strip */}
-          <div className="sm:hidden absolute bottom-11 left-6 right-6 h-[80px] rounded-2xl overflow-hidden border border-white/40">
-            <Image src={slides[safeIdx].img} alt={slides[safeIdx].alt} fill className="object-cover" sizes="90vw" />
-          </div>
 
           {/* Side arrows. Visible on hover for desktop, always visible on touch. */}
           <button onClick={() => setIdx((idx - 1 + slides.length) % slides.length)} aria-label="Prev" className="absolute left-3 bottom-3 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/90 text-forest grid place-items-center hover:bg-white transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100">

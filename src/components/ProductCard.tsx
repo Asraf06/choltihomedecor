@@ -36,7 +36,7 @@ export default function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square bg-sand">
         <Image src={product.img} alt={product.name} fill className="object-cover" sizes="(max-width:768px)50vw,25vw" loading="lazy" />
-        <span className="absolute left-2.5 top-2.5 bg-clay text-white text-[11px] font-extrabold rounded-full px-2.5 py-1">-{product.off}%</span>
+        <span className="absolute left-2.5 top-2.5 bg-clay text-white text-[15px] font-extrabold rounded-full px-2.5 py-1">-{product.off}%</span>
         <button
           onClick={(e) => {
             stop(e);
@@ -49,12 +49,12 @@ export default function ProductCard({ product }: { product: Product }) {
         </button>
       </div>
       <div className="p-3 flex flex-col gap-1.5 flex-1">
-        <span className="text-[10px] tracking-[1.8px] text-gold font-extrabold uppercase">{product.cat}</span>
-        <div className="text-[14.5px] font-semibold leading-snug line-clamp-2 min-h-10 text-ink">{product.name}</div>
-        <div className="text-xs text-muted"><span className="stars text-xs">★★★★★</span> {product.rating}</div>
+        <span className="text-[14px] tracking-[1.8px] text-gold font-extrabold uppercase">{product.cat}</span>
+        <div className="text-[16.5px] font-semibold leading-snug line-clamp-2 min-h-10 text-ink">{product.name}</div>
+        <div className="text-base text-muted"><span className="stars text-base">★★★★★</span> {product.rating}</div>
         <div className="flex items-baseline gap-2">
-          <span className="text-[13px] text-muted line-through">৳{product.old.toLocaleString()}</span>
-          <span className="text-base font-extrabold text-clay">৳{product.now.toLocaleString()}</span>
+          <span className="text-[17px] text-muted line-through">৳{product.old.toLocaleString()}</span>
+          <span className="text-lg font-extrabold text-clay">৳{product.now.toLocaleString()}</span>
         </div>
         <div className="flex flex-col gap-2 mt-1.5">
           <button
@@ -62,11 +62,11 @@ export default function ProductCard({ product }: { product: Product }) {
               stop(e);
               add();
             }}
-            className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-xs font-bold hover:bg-clay-dark"
+            className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-base font-bold hover:bg-clay-dark"
           >
             <ShoppingCart size={14} />{t.addToCart}
           </button>
-          <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-xs font-bold">
+          <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-base font-bold">
             <Eye size={14} />{t.details}
           </Link>
         </div>
