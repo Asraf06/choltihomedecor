@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, AlertCircle, Heart, ShoppingBag, Truck } from "lucide-react";
+import { Mail, AlertCircle } from "lucide-react";
 import { useAuth, AuthError } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 
@@ -73,26 +73,9 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="w-full max-w-sm bg-paper border border-line rounded-[20px] p-6">
-      <b className="font-serif text-2xl">{mode === "in" ? t.loginTitle : t.signUp}</b>
-      <p className="text-[13px] text-muted mt-1 mb-4">{t.loginSub}</p>
-      <div className="flex flex-col gap-2.5 mb-4">
-        {[
-          { Icon: Heart, title: t.benWT, sub: t.benWS },
-          { Icon: ShoppingBag, title: t.benCT, sub: t.benCS },
-          { Icon: Truck, title: t.benTT, sub: t.benTS },
-        ].map(({ Icon, title, sub }) => (
-          <div key={title} className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-full bg-gold-soft grid place-items-center text-forest shrink-0">
-              <Icon size={16} />
-            </span>
-            <span>
-              <b className="block text-[13px]">{title}</b>
-              <small className="block text-[11px] text-muted">{sub}</small>
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="w-full">
+      <b className="font-serif text-2xl md:text-[22px]">{mode === "in" ? t.loginTitle : t.signUp}</b>
+      <p className="text-[13px] text-muted mt-1 mb-4 md:mb-2.5">{t.loginSub}</p>
       {error && (
         <p role="alert" className="flex items-center gap-2 rounded-xl border border-clay/40 bg-clay-light px-3.5 py-2.5 text-[13px] font-bold text-clay mb-3">
           <AlertCircle size={16} className="shrink-0" />
@@ -102,7 +85,7 @@ export default function AuthForm() {
       <button
         disabled={busy}
         onClick={() => run(signInGoogle)}
-          className="w-full inline-flex justify-center items-center gap-2 bg-white border border-line rounded-[35px] py-3 text-[13px] font-bold hover:border-gold disabled:opacity-50 text-[#2B2320]"
+          className="w-full inline-flex justify-center items-center gap-2 bg-white border border-line rounded-[35px] py-3 md:py-2.5 text-[13px] font-bold hover:border-gold disabled:opacity-50 text-[#2B2320]"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
           <path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.3H12v4.5h6.5c-.1 1.1-.8 2.7-2.4 3.8l-.1.1 3.5 2.7.2.1c2.2-2 3.8-5 3.8-8.9z" />
@@ -112,7 +95,7 @@ export default function AuthForm() {
         </svg>
         {t.googleContinue}
       </button>
-      <div className="flex items-center gap-3 my-4">
+      <div className="flex items-center gap-3 my-4 md:my-2.5">
         <span className="flex-1 h-px bg-line" />
         <Mail size={14} className="text-muted" />
         <span className="flex-1 h-px bg-line" />
@@ -123,18 +106,18 @@ export default function AuthForm() {
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} className="mt-1.5 w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-sm font-normal outline-none" />
         </label>
       )}
-      <label className="block text-xs font-bold mb-2.5">
+      <label className="block text-xs font-bold mb-2.5 md:mb-2">
         {t.emailAddress} <span aria-hidden className="text-clay">*</span>
-        <input ref={emailRef} value={email} onChange={(e) => { setEmail(e.target.value); setBadEmail(false); }} type="email" autoComplete="email" required maxLength={80} placeholder={t.emailPh} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none placeholder:text-muted/70 ${badEmail ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
+        <input ref={emailRef} value={email} onChange={(e) => { setEmail(e.target.value); setBadEmail(false); }} type="email" autoComplete="email" required maxLength={80} placeholder={t.emailPh} className={`mt-1.5 md:mt-1 w-full h-[42px] md:h-[40px] border rounded-xl px-3.5 text-sm font-normal outline-none placeholder:text-muted/70 ${badEmail ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
-      <label className="block text-xs font-bold mb-4">
+      <label className="block text-xs font-bold mb-4 md:mb-2.5">
         {t.passwordLabel} <span aria-hidden className="text-clay">*</span>
-        <input ref={passRef} value={password} onChange={(e) => { setPassword(e.target.value); setBadPass(false); }} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required placeholder={t.passwordPh} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badPass ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
+        <input ref={passRef} value={password} onChange={(e) => { setPassword(e.target.value); setBadPass(false); }} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required placeholder={t.passwordPh} className={`mt-1.5 md:mt-1 w-full h-[42px] md:h-[40px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badPass ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
       <button
         disabled={busy}
         onClick={submitEmail}
-        className="w-full inline-flex justify-center items-center bg-clay text-white rounded-[35px] py-3 text-[13px] font-bold hover:bg-clay-dark disabled:opacity-50"
+        className="w-full inline-flex justify-center items-center bg-clay text-white rounded-[35px] py-3 md:py-2.5 text-[13px] font-bold hover:bg-clay-dark disabled:opacity-50"
       >
         {mode === "in" ? t.signIn : t.signUp}
       </button>
