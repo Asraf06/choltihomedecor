@@ -20,7 +20,7 @@ const csp = isDev
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' https://images.unsplash.com data: blob:",
       "connect-src 'self' https://wa.me https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com",
-      "frame-src 'self' https://accounts.google.com",
+      "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com",
     ].join("; ");
 
 const nextConfig: NextConfig = {
