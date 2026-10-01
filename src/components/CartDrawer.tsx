@@ -1,14 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, MessageCircle } from "lucide-react";
 import Image from "next/image";
+import { collection, addDoc } from "firebase/firestore";
+import { clientDb } from "@/lib/firebase-client";
+import { useAuth } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import { CheckoutSchema, buildOrderMessage, waOrderLink } from "@/lib/whatsapp";
 
 export default function CartDrawer() {
   const { t } = useLang();
+  const { user } = useAuth();
   const { cart, updateQty, removeItem, cartOpen, setCartOpen } = useShop();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -22,7 +26,19 @@ export default function CartDrawer() {
     return { sub: s, del: d, total: s + d };
   }, [cart, area]);
 
-  if (!cartOpen) return null;
+  useEffect(() => {
+    if (!cartOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCartOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [cartOpen, setCartOpen]);
 
   const confirm = () => {
     const parsed = CheckoutSchema.safeParse({ name, phone, address, area });
@@ -35,14 +51,31 @@ export default function CartDrawer() {
       return;
     }
     setErr(null);
+    // Logged-in users get an order record for account tracking.
+    if (user) {
+      addDoc(collection(clientDb, "users", user.uid, "orders"), {
+        items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now })),
+        subtotal: sub,
+        delivery: del,
+        total,
+        name: parsed.data.name,
+        phone: parsed.data.phone,
+        address: parsed.data.address,
+        status: "pending",
+        created_at: new Date().toISOString(),
+      }).catch(() => {});
+    }
     const msg = buildOrderMessage(cart, parsed.data, sub, del, total);
     window.open(waOrderLink(msg), "_blank", "noopener,noreferrer");
   };
 
   return (
-    <>
-      <div onClick={() => setCartOpen(false)} className="fixed inset-0 bg-[#2B2320]/45 z-[80]" />
-      <aside className="fixed top-0 right-0 h-dvh w-[min(420px,94vw)] bg-paper z-[90] rounded-l-[20px] border-l border-line flex flex-col">
+    <div className={`${cartOpen ? "" : "pointer-events-none"}`} aria-hidden={!cartOpen} inert={!cartOpen}>
+      <div
+        onClick={() => setCartOpen(false)}
+        className={`fixed inset-0 bg-[#2B2320]/45 z-[80] transition-opacity duration-300 ${cartOpen ? "opacity-100" : "opacity-0"}`}
+      />
+      <aside className={`fixed top-0 right-0 h-dvh w-[min(420px,94vw)] bg-paper z-[90] rounded-l-[20px] border-l border-line flex flex-col transition-transform duration-300 ease-out ${cartOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="p-[18px] border-b border-line flex justify-between items-center">
           <b className="font-serif text-lg">{t.checkout}</b>
           <button onClick={() => setCartOpen(false)} className="w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center" aria-label="Close"><X size={17} /></button>
@@ -79,6 +112,6 @@ export default function CartDrawer() {
           <p className="text-[11px] text-muted text-center mt-1">{t.codNote}</p>
         </div>
       </aside>
-    </>
+    </div>
   );
 }

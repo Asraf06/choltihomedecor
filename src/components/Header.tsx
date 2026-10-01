@@ -11,6 +11,7 @@ import type { ShopCategory } from "@/lib/catalog-db";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import MobileMenu from "./MobileMenu";
 
 function LangToggle() {
   const { lang, setLang } = useLang();
@@ -31,6 +32,13 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
   const { t } = useLang();
   const browse = categories?.length ? categories : (CATEGORIES as ShopCategory[]);
   const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const closeMenu = () => {
+    setOpen(false);
+    setPinned(false);
+  };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const browseRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const lastY = useRef(0);
   const pathname = usePathname();
@@ -71,6 +79,17 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
     setChromeHidden(!visible);
   }, [visible, setChromeHidden]);
 
+  // Pinned menu closes on any outside click (fixed backdrop is clipped by the
+  // header's hide-on-scroll transform, so listen on document instead).
+  useEffect(() => {
+    if (!open || !pinned) return;
+    const onDown = (e: PointerEvent) => {
+      if (browseRef.current && !browseRef.current.contains(e.target as Node)) closeMenu();
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open, pinned]);
+
   return (
     <>
       <div
@@ -90,10 +109,13 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
         </div>
 
         <header className="bg-paper/95 backdrop-blur-xl border-b border-line">
-          <div className="max-w-[1180px] mx-auto px-5 h-[70px] flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 shrink-0">
-              <span className="w-10 h-10 rounded-xl bg-forest text-gold grid place-items-center font-serif font-bold text-[22px]">C</span>
-              <span className="leading-none"><b className="font-serif text-[22px] text-forest dark:text-gold">Cholti</b><small className="block text-[10px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
+          <div className="max-w-[1180px] mx-auto px-5 h-[70px] flex items-center gap-2 sm:gap-3">
+            <button onClick={() => setMenuOpen(true)} className="lg:hidden w-[42px] h-[42px] shrink-0 rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold" aria-label="Open menu">
+              <Menu size={18} />
+            </button>
+            <Link href="/" className="flex items-center gap-2 shrink-0 min-w-0">
+              <span className="w-10 h-10 rounded-xl bg-forest text-gold grid place-items-center font-serif font-bold text-[22px] shrink-0">C</span>
+              <span className="leading-none hidden min-[400px]:block"><b className="font-serif text-[22px] text-forest dark:text-gold">Cholti</b><small className="block text-[10px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
             </Link>
 
             <div className="hidden sm:flex flex-1 max-w-[520px] mx-auto items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]">
@@ -101,9 +123,9 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
               <button className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center hover:bg-clay-dark" aria-label="Search"><Search size={16} /></button>
             </div>
 
-            <div className="flex items-center gap-2 ml-auto">
-              <LangToggle />
-              <ThemeToggle />
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0">
+              <span className="hidden sm:inline-flex"><LangToggle /></span>
+              <span className="hidden sm:inline-flex"><ThemeToggle /></span>
               <span className="relative">
                 <button
                   onClick={() => (user ? setAccountOpen((v) => !v) : router.push("/login"))}
@@ -141,16 +163,35 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
             </div>
           </div>
 
-          <nav className="bg-paper border-t border-line">
+          <nav className="hidden lg:block bg-paper border-t border-line">
             <div className="max-w-[1180px] mx-auto px-5 flex items-center gap-[18px]">
-              <div className="relative shrink-0">
-                <button onClick={() => setOpen((v) => !v)} aria-expanded={open} className={`inline-flex items-center gap-2 bg-forest text-white rounded-xl px-4 py-2.5 text-[13px] font-bold my-2.5 whitespace-nowrap ${onCategoryPage ? "ring-2 ring-gold" : ""}`}><Menu size={15} />{t.browse}<ChevronDown size={14} /></button>
+              <div
+                ref={browseRef}
+                className="relative shrink-0"
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => {
+                  if (!pinned) setOpen(false);
+                }}
+              >
+                <button
+                  onClick={() => {
+                    if (open && pinned) closeMenu();
+                    else {
+                      setOpen(true);
+                      setPinned(true);
+                    }
+                  }}
+                  aria-expanded={open}
+                  className={`inline-flex items-center gap-2 bg-forest text-white rounded-xl px-4 py-2.5 text-[13px] font-bold my-2.5 whitespace-nowrap ${onCategoryPage ? "ring-2 ring-gold" : ""}`}
+                >
+                  <Menu size={15} />{t.browse}<ChevronDown size={14} />
+                </button>
                 {open && (
                   <>
-                    <button aria-label="Close menu" onClick={() => setOpen(false)} className="fixed inset-0 z-[90] cursor-default bg-transparent" />
+                    <button aria-label="Close menu" onClick={closeMenu} className="fixed inset-0 z-[90] cursor-default bg-transparent" />
                     <div className="absolute top-full left-0 bg-paper border border-line rounded-2xl shadow-[0_18px_50px_rgba(62,32,12,0.10)] min-w-[280px] p-2 z-[95]">
                     {browse.slice(0, 6).map((c) => (
-                      <Link key={c.name} href={`/category/${c.id}`} onClick={() => setOpen(false)} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-sand w-full text-left">
+                      <Link key={c.name} href={`/category/${c.id}`} onClick={closeMenu} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-sand w-full text-left">
                         <Image src={c.img} alt={c.name} width={44} height={44} className="w-11 h-11 rounded-full object-cover border border-line" loading="lazy" />
                         <span><b className="text-[13px] block">{c.name}</b><small className="text-[11px] text-muted">{c.count}</small></span>
                       </Link>
@@ -175,7 +216,8 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
         </header>
       </div>
       {/* spacer so content does not jump under fixed header */}
-      <div aria-hidden className="h-[213px] sm:h-[161px]" />
+      <div aria-hidden className="h-[165px] sm:h-[161px]" />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   );
 }

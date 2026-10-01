@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Eye } from "lucide-react";
 import type { Product } from "@/lib/data";
 import { useShop } from "@/lib/store";
@@ -12,7 +13,11 @@ import { useLang } from "@/lib/lang";
 export default function ProductCard({ product }: { product: Product }) {
   const { wishlist, toggleWish, addToCart, setCartOpen } = useShop();
   const { t } = useLang();
+  const router = useRouter();
   const wished = wishlist.includes(product.slug);
+
+  const open = () => router.push(`/product/${product.slug}`);
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   const add = () => {
     addToCart(product, 1, "Standard");
@@ -20,12 +25,23 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="bg-paper border border-line rounded-[20px] overflow-hidden shadow-[0_18px_50px_rgba(62,32,12,0.10)] hover:-translate-y-1 hover:border-gold transition flex flex-col">
+    <div
+      onClick={open}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") open();
+      }}
+      role="link"
+      tabIndex={0}
+      className="bg-paper border border-line rounded-[20px] overflow-hidden shadow-[0_18px_50px_rgba(62,32,12,0.10)] hover:-translate-y-1 hover:border-gold transition flex flex-col cursor-pointer"
+    >
       <div className="relative aspect-square bg-sand">
         <Image src={product.img} alt={product.name} fill className="object-cover" sizes="(max-width:768px)50vw,25vw" loading="lazy" />
         <span className="absolute left-2.5 top-2.5 bg-clay text-white text-[11px] font-extrabold rounded-full px-2.5 py-1">-{product.off}%</span>
         <button
-          onClick={() => toggleWish(product.slug)}
+          onClick={(e) => {
+            stop(e);
+            toggleWish(product.slug);
+          }}
           aria-label="wishlist"
           className={`absolute right-2.5 top-2.5 w-8 h-8 rounded-full grid place-items-center border border-line ${wished ? "bg-clay text-white border-clay" : "bg-paper text-forest dark:text-gold"}`}
         >
@@ -41,7 +57,13 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="text-base font-extrabold text-clay">৳{product.now.toLocaleString()}</span>
         </div>
         <div className="flex flex-col gap-2 mt-1.5">
-          <button onClick={add} className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-xs font-bold hover:bg-clay-dark">
+          <button
+            onClick={(e) => {
+              stop(e);
+              add();
+            }}
+            className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-xs font-bold hover:bg-clay-dark"
+          >
             <ShoppingCart size={14} />{t.addToCart}
           </button>
           <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-xs font-bold">

@@ -11,7 +11,7 @@ export default function Categories({ initial }: { initial?: ShopCategory[] }) {
   return (
     <section className="bg-paper border-b border-line py-[64px]">
       <div className="max-w-[1180px] mx-auto px-5">
-        <div className="flex justify-between items-end mb-[26px]">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-[26px]">
           <div><div className="eyebrow">{t.catEyebrow}</div><h2 className="font-serif text-[26px] md:text-[34px]">{t.catTitleA} <span className="italic-accent">{t.catTitleB}</span></h2><div className="gold-divider" /></div>
           <Link href="/shop" className="text-clay text-[13px] font-bold whitespace-nowrap">{t.viewAll}</Link>
         </div>

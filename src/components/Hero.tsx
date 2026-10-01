@@ -28,8 +28,8 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
   }, [paused, slides.length]);
 
   const boxCls = boxed
-    ? "group relative rounded-3xl overflow-hidden border border-line h-[440px] md:h-[420px]"
-    : "group relative overflow-hidden border-y border-line h-[440px] md:h-[420px]";
+    ? "group relative rounded-3xl overflow-hidden border border-line h-[340px] md:h-[300px]"
+    : "group relative overflow-hidden border-y border-line h-[340px] md:h-[300px]";
   const box = (
       <div
           className={boxCls}
@@ -47,14 +47,14 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
                     <span className={`inline-block text-[10px] md:text-[11px] font-extrabold tracking-[2.4px] rounded-full bg-white/15 text-white px-3 py-1.5`}>
                       {pick(s.eyebrow, lang)}
                     </span>
-                    <h2 className="font-serif text-white text-[30px] md:text-[44px] leading-[1.1] mt-3">
+                    <h2 className="font-serif text-white text-[24px] sm:text-[26px] md:text-[34px] leading-[1.1] mt-2">
                       {pick(s.title, lang)}
                     </h2>
-                    <p className={`text-[13px] md:text-sm mt-2 max-w-[440px] ${th.soft}`}>{pick(s.sub, lang)}</p>
+                    <p className={`text-[12px] md:text-[13px] mt-1.5 max-w-[440px] ${th.soft}`}>{pick(s.sub, lang)}</p>
                     <a
                       href={s.link.startsWith("#") ? s.link : s.link}
                       {...(s.link.startsWith("#") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
-                      className={`inline-flex items-center gap-2 rounded-[35px] px-6 py-3 text-[13px] font-extrabold mt-4 ${th.pill}`}
+                      className={`inline-flex items-center gap-2 rounded-[35px] px-5 py-2.5 text-[13px] font-extrabold mt-3 ${th.pill}`}
                     >
                       {pick(s.cta, lang)} <ArrowRight size={15} />
                     </a>
@@ -73,16 +73,16 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
           })}
 
           {/* mobile image strip */}
-          <div className="sm:hidden absolute bottom-12 left-6 right-6 h-[110px] rounded-2xl overflow-hidden border border-white/40">
+          <div className="sm:hidden absolute bottom-11 left-6 right-6 h-[80px] rounded-2xl overflow-hidden border border-white/40">
             <Image src={slides[safeIdx].img} alt={slides[safeIdx].alt} fill className="object-cover" sizes="90vw" />
           </div>
 
           {/* Side arrows. Visible on hover for desktop, always visible on touch. */}
-          <button onClick={() => setIdx((idx - 1 + slides.length) % slides.length)} aria-label="Prev" className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-forest grid place-items-center hover:bg-white transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100">
-            <ChevronLeft size={18} />
+          <button onClick={() => setIdx((idx - 1 + slides.length) % slides.length)} aria-label="Prev" className="absolute left-3 bottom-3 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/90 text-forest grid place-items-center hover:bg-white transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100">
+            <ChevronLeft size={16} />
           </button>
-          <button onClick={() => setIdx((idx + 1) % slides.length)} aria-label="Next" className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-forest grid place-items-center hover:bg-white transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100">
-            <ChevronRight size={18} />
+          <button onClick={() => setIdx((idx + 1) % slides.length)} aria-label="Next" className="absolute right-3 bottom-3 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/90 text-forest grid place-items-center hover:bg-white transition-opacity md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100">
+            <ChevronRight size={16} />
           </button>
 
           {/* dots like reference */}

@@ -5,9 +5,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { clientDb } from "./firebase-client";
+import { useAuth } from "./auth-context";
 import type { Product } from "./data";
 
 export type CartItem = {
@@ -47,12 +51,14 @@ function read<T>(k: string, fb: T): T {
 }
 
 export function ShopProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const syncedUid = useRef<string | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -69,6 +75,40 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
   }, [wishlist, cart, hydrated]);
+
+  // Logged in: merge device data into the account once, then keep Firestore updated.
+  useEffect(() => {
+    if (!hydrated || !user || syncedUid.current === user.uid) return;
+    syncedUid.current = user.uid;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(clientDb, "users", user.uid));
+        const cloud = snap.data() as { wishlist?: string[]; cart?: CartItem[] } | undefined;
+        const mergedWish = [...new Set([...read<string[]>("cholti_wish", []), ...(cloud?.wishlist ?? [])])];
+        const byKey = new Map<string, CartItem>();
+        for (const it of [...read<CartItem[]>("cholti_cart", []), ...(cloud?.cart ?? [])]) {
+          const k = `${it.slug}||${it.fabric}`;
+          const prev = byKey.get(k);
+          byKey.set(k, prev ? { ...it, qty: Math.min(99, prev.qty + it.qty) } : it);
+        }
+        const mergedCart = [...byKey.values()];
+        setWishlist(mergedWish);
+        setCart(mergedCart);
+        await setDoc(doc(clientDb, "users", user.uid), { wishlist: mergedWish, cart: mergedCart }, { merge: true });
+      } catch {
+        // offline or rules issue: device copy keeps working
+      }
+    })();
+  }, [hydrated, user]);
+
+  useEffect(() => {
+    if (!hydrated || !user || syncedUid.current !== user.uid) return;
+    setDoc(doc(clientDb, "users", user.uid), { wishlist, cart }, { merge: true }).catch(() => {});
+  }, [hydrated, user, wishlist, cart]);
+
+  useEffect(() => {
+    if (!user) syncedUid.current = null;
+  }, [user]);
 
   const val = useMemo<ShopState>(
     () => ({

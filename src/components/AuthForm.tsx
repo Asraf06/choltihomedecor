@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, AlertCircle } from "lucide-react";
+import { Mail, AlertCircle, Heart, ShoppingBag, Truck } from "lucide-react";
 import { useAuth, AuthError } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 
@@ -30,9 +30,13 @@ export default function AuthForm() {
   const passRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user) {
-      if (window.history.length > 1) router.back();
+    if (!user) return;
+    // Came from inside the shop: go back. Direct visit: go home instead of blank.
+    try {
+      if (document.referrer.startsWith(window.location.origin)) router.back();
       else router.push("/");
+    } catch {
+      router.push("/");
     }
   }, [user, router]);
 
@@ -72,6 +76,23 @@ export default function AuthForm() {
     <div className="w-full max-w-sm bg-paper border border-line rounded-[20px] p-6">
       <b className="font-serif text-2xl">{mode === "in" ? t.loginTitle : t.signUp}</b>
       <p className="text-[13px] text-muted mt-1 mb-4">{t.loginSub}</p>
+      <div className="flex flex-col gap-2.5 mb-4">
+        {[
+          { Icon: Heart, title: t.benWT, sub: t.benWS },
+          { Icon: ShoppingBag, title: t.benCT, sub: t.benCS },
+          { Icon: Truck, title: t.benTT, sub: t.benTS },
+        ].map(({ Icon, title, sub }) => (
+          <div key={title} className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-full bg-gold-soft grid place-items-center text-forest shrink-0">
+              <Icon size={16} />
+            </span>
+            <span>
+              <b className="block text-[13px]">{title}</b>
+              <small className="block text-[11px] text-muted">{sub}</small>
+            </span>
+          </div>
+        ))}
+      </div>
       {error && (
         <p role="alert" className="flex items-center gap-2 rounded-xl border border-clay/40 bg-clay-light px-3.5 py-2.5 text-[13px] font-bold text-clay mb-3">
           <AlertCircle size={16} className="shrink-0" />
@@ -104,11 +125,11 @@ export default function AuthForm() {
       )}
       <label className="block text-xs font-bold mb-2.5">
         {t.emailAddress} <span aria-hidden className="text-clay">*</span>
-        <input ref={emailRef} value={email} onChange={(e) => { setEmail(e.target.value); setBadEmail(false); }} type="email" autoComplete="email" required maxLength={80} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badEmail ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
+        <input ref={emailRef} value={email} onChange={(e) => { setEmail(e.target.value); setBadEmail(false); }} type="email" autoComplete="email" required maxLength={80} placeholder={t.emailPh} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none placeholder:text-muted/70 ${badEmail ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
       <label className="block text-xs font-bold mb-4">
         {t.passwordLabel} <span aria-hidden className="text-clay">*</span>
-        <input ref={passRef} value={password} onChange={(e) => { setPassword(e.target.value); setBadPass(false); }} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badPass ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
+        <input ref={passRef} value={password} onChange={(e) => { setPassword(e.target.value); setBadPass(false); }} type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required placeholder={t.passwordPh} className={`mt-1.5 w-full h-[42px] border rounded-xl px-3.5 text-sm font-normal outline-none ${badPass ? "border-clay ring-2 ring-clay/30 bg-sand" : "border-line bg-sand"}`} />
       </label>
       <button
         disabled={busy}

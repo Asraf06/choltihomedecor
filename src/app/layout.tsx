@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Fraunces, Playfair_Display, Albert_Sans, Hind_Siliguri, Noto_Serif_Bengali, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { ShopProvider } from "@/lib/store";
 import { LangProvider } from "@/lib/lang";
 import { AuthProvider } from "@/lib/auth-context";
+import Analytics from "@/components/Analytics";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", weight: ["500", "600", "700"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["600", "700"] });
@@ -29,11 +31,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "(function(){try{var t=localStorage.getItem('cholti_theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()",
           }}
         />
-        <ShopProvider>
-          <LangProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </LangProvider>
-        </ShopProvider>
+        <AuthProvider>
+          <ShopProvider>
+            <LangProvider>{children}</LangProvider>
+          </ShopProvider>
+        </AuthProvider>
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
       </body>
     </html>
   );
