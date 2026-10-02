@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Heart, ShoppingBag, Truck } from "lucide-react";
 import { useLang } from "@/lib/lang";
 
@@ -54,13 +55,7 @@ export default function LoginSpotlight() {
       </span>
       <div className="relative">
         <span className="inline-flex items-center gap-2">
-          <span className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gold text-forest grid place-items-center font-serif font-bold text-[18px] md:text-[22px]">
-            C
-          </span>
-          <span className="leading-none">
-            <b className="font-serif text-[17px] md:text-[20px]">Cholti</b>
-            <small className="block text-[8px] md:text-[9px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small>
-          </span>
+          <Image src="/logo.png" alt="Cholti Home Decor" width={120} height={40} className="h-11 w-auto rounded-lg object-cover" />
         </span>
         <h2 className="font-serif text-[20px] md:text-[27px] leading-[1.15] mt-3 md:mt-3 max-w-[380px]">{t.spotTitle}</h2>
         <p className="hidden md:block text-[16px] text-[#c8d7d2] mt-1.5 max-w-[360px]">{t.spotSub}</p>

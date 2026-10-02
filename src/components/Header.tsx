@@ -115,8 +115,8 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
             <button onClick={() => setMenuOpen(true)} className="lg:hidden w-[42px] h-[42px] shrink-0 rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold" aria-label="Open menu">
               <Menu size={18} />
             </button>
-            <Link href="/" className="flex items-center gap-2 shrink-0 min-w-0">
-              <span className="w-10 h-10 rounded-xl bg-forest text-gold grid place-items-center font-serif font-bold text-[22px] shrink-0">C</span>
+            <Link href="/" className="flex items-center gap-2 shrink-0 min-w-0" aria-label="Cholti Home Decor">
+              <Image src="/logo.png" alt="Cholti Home Decor" width={120} height={40} className="h-11 w-auto rounded-lg object-cover" priority />
               <span className="leading-none hidden min-[400px]:block"><b className="font-serif text-[22px] text-forest dark:text-gold">Cholti</b><small className="block text-[14px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
             </Link>
 

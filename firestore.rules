@@ -14,8 +14,8 @@ service cloud.firestore {
         && (!("disabled" in request.resource.data) || request.resource.data.disabled == false);
       allow update: if owner(userId)
         && request.resource.data.get("disabled", false) == resource.data.get("disabled", false)
-        && request.resource.data.get("user_id", "") == resource.data.get("user_id", "")
-        && request.resource.data.get("created_at", "") == resource.data.get("created_at", "");
+        && (resource.data.get("user_id", "") == "" || request.resource.data.get("user_id", "") == resource.data.get("user_id", ""))
+        && (resource.data.get("created_at", "") == "" || request.resource.data.get("created_at", "") == resource.data.get("created_at", ""));
     }
     match /users/{userId}/orders/{orderId} {
       allow read, create: if owner(userId);

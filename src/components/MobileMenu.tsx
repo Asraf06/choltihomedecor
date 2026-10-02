@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   X, Home, ShoppingBag, Flame, Heart, Info, Phone, Package, Tag, Sun, Moon,
@@ -62,8 +63,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
       >
         <div className="flex items-center justify-between p-4 border-b border-line">
           <span className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-xl bg-forest text-gold grid place-items-center font-serif font-bold text-lg">C</span>
-            <b className="font-serif text-lg">Cholti</b>
+            <Image src="/logo.png" alt="Cholti Home Decor" width={108} height={36} className="h-9 w-auto rounded-lg object-cover" />
           </span>
           <button onClick={onClose} aria-label="Close" className="w-9 h-9 grid place-items-center rounded-full border border-line">
             <X size={16} />
