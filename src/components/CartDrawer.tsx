@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, MessageCircle, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { collection, addDoc, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
 import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
@@ -75,7 +75,9 @@ export default function CartDrawer() {
 
   const saveOrder = async (parsed: { name: string; phone: string; address: string }) => {
     const at = new Date().toISOString();
-    const ref = await addDoc(collection(clientDb, "orders"), {
+    const siteRef = doc(collection(clientDb, "orders"));
+    const userOrderRef = user ? doc(collection(clientDb, "users", user.uid, "orders")) : null;
+    await setDoc(siteRef, {
       items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now, img: c.img })),
       subtotal: sub,
       delivery: del,
@@ -88,12 +90,13 @@ export default function CartDrawer() {
       email: user?.email ?? "",
       user_id: user ? publicUserId(user.uid) : "",
       photo: user?.photoURL ?? "",
+      user_order_id: userOrderRef?.id ?? "",
       status: "new",
       source: "site",
       created_at: at,
     });
-    if (user) {
-      addDoc(collection(clientDb, "users", user.uid, "orders"), {
+    if (user && userOrderRef) {
+      setDoc(userOrderRef, {
         items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now })),
         subtotal: sub,
         delivery: del,
@@ -102,13 +105,14 @@ export default function CartDrawer() {
         phone: parsed.phone,
         address: parsed.address,
         status: "pending",
+        site_order_id: siteRef.id,
         created_at: at,
       }).catch(() => {});
       [...new Set(cart.map((c) => c.slug))].forEach((slug) => {
         setDoc(doc(clientDb, "users", user.uid, "purchased", slug), { at }, { merge: true }).catch(() => {});
       });
     }
-    return ref.id;
+    return siteRef.id;
   };
 
   const confirm = () => {

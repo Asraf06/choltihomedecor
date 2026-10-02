@@ -10,6 +10,20 @@ import { useSettings } from "@/lib/settings-context";
 
 const TRACK_MSG = "Assalamu alaikum, I want to track my order.";
 
+const STEPS = [
+  { key: "new", en: "Placed", bn: "অর্ডার হয়েছে" },
+  { key: "confirmed", en: "Confirmed", bn: "কনফার্ম" },
+  { key: "delivering", en: "On the way", bn: "পথে আছে" },
+  { key: "delivered", en: "Delivered", bn: "ডেলিভারি হয়েছে" },
+];
+
+function stageOf(status: string): number {
+  if (status === "confirmed") return 1;
+  if (status === "delivering") return 2;
+  if (status === "delivered") return 3;
+  return 0;
+}
+
 type Order = {
   id: string;
   total: number;
@@ -70,24 +84,45 @@ export default function TrackView() {
             </p>
           ) : (
             <div className="flex flex-col gap-3 max-w-2xl">
-              {orders.map((o) => (
-                <div key={o.id} className="flex items-center gap-4 bg-paper border border-line rounded-[16px] p-4">
-                  <span className="w-10 h-10 rounded-full bg-gold-soft grid place-items-center text-forest shrink-0">
-                    <Package size={18} />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <b className="text-[17px] block truncate">
-                      {o.items.map((it) => `${it.name} x${it.qty}`).join(", ")}
-                    </b>
-                    <small className="text-muted text-[15px]">
-                      {String(o.created_at).slice(0, 10)} • {o.total.toLocaleString()}৳
-                    </small>
+              {orders.map((o) => {
+                const stage = stageOf(o.status);
+                const cancelled = o.status === "cancelled";
+                return (
+                <div key={o.id} className="bg-paper border border-line rounded-[16px] p-4">
+                  <div className="flex items-center gap-4">
+                    <span className="w-10 h-10 rounded-full bg-gold-soft grid place-items-center text-forest shrink-0">
+                      <Package size={18} />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <b className="text-[17px] block truncate">
+                        {o.items.map((it) => `${it.name} x${it.qty}`).join(", ")}
+                      </b>
+                      <small className="text-muted text-[15px]">
+                        {String(o.created_at).slice(0, 10)} • {o.total.toLocaleString()}৳
+                      </small>
+                    </div>
+                    <span className={`${cancelled ? "bg-clay" : "bg-forest"} text-white text-[14px] font-extrabold rounded-full px-2.5 py-1 shrink-0`}>
+                      {cancelled ? (lang === "bn" ? "বাতিল" : "Cancelled") : lang === "bn" ? STEPS[stage].bn : STEPS[stage].en}
+                    </span>
                   </div>
-                  <span className="bg-forest text-white text-[14px] font-extrabold rounded-full px-2.5 py-1 shrink-0">
-                    {lang === "bn" && o.status === "pending" ? "পেন্ডিং" : o.status}
-                  </span>
+                  {!cancelled && (
+                    <div className="flex items-center mt-3" aria-hidden>
+                      {STEPS.map((s, i) => (
+                        <div key={s.key} className={`flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}`}>
+                          <span className={`w-5 h-5 rounded-full grid place-items-center text-[11px] font-extrabold shrink-0 ${i <= stage ? "bg-forest text-white" : "bg-sand border border-line text-muted"}`}>
+                            {i <= stage ? "✓" : ""}
+                          </span>
+                          <small className={`ml-1 mr-2 text-[13px] font-bold whitespace-nowrap ${i <= stage ? "" : "text-muted"}`}>
+                            {lang === "bn" ? s.bn : s.en}
+                          </small>
+                          {i < STEPS.length - 1 && <span className={`flex-1 h-0.5 mx-0.5 ${i < stage ? "bg-forest" : "bg-line"}`} />}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
