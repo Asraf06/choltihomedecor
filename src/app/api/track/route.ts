@@ -24,6 +24,10 @@ function allowed(ip: string): boolean {
 }
 
 export async function POST(req: Request) {
+  const ua = req.headers.get("user-agent") ?? "";
+  if (/bot|crawl|spider|slurp|mediapartners|baidu|yandex|sogou|exabot|facebot|ia_archiver|headless|playwright|phantom|selenium|puppeteer|lighthouse/i.test(ua)) {
+    return NextResponse.json({ ok: true });
+  }
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   if (!allowed(ip)) return NextResponse.json({ error: "slow down" }, { status: 429 });
   const parsed = z.object({

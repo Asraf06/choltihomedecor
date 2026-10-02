@@ -15,6 +15,9 @@ export default function Analytics() {
         sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
         sessionStorage.setItem("cholti_sid", sid);
       }
+      const seen = JSON.parse(sessionStorage.getItem("cholti_seen") ?? "[]") as string[];
+      if (seen.includes(path)) return;
+      sessionStorage.setItem("cholti_seen", JSON.stringify([...seen.slice(-19), path]));
       const body = JSON.stringify({ path, sid });
       if (navigator.sendBeacon) {
         navigator.sendBeacon("/api/track", new Blob([body], { type: "application/json" }));
