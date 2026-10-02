@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var t=localStorage.getItem('cholti_theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()",
+              "(function(){try{if(localStorage.getItem('cholti_theme')==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})()",
           }}
         />
         <AuthProvider>

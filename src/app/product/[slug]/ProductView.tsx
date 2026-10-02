@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, Phone, ShoppingCart, Banknote, Truck, RefreshCcw } from "lucide-react";
+import { ShoppingCart, Banknote, Truck, RefreshCcw } from "lucide-react";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { Footer, FloatingWA } from "@/components/Closing";
@@ -14,12 +14,9 @@ import type { Product } from "@/lib/data";
 import type { ShopCategory } from "@/lib/catalog-db";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
-import { useSettings, telLink } from "@/lib/settings-context";
-import { waProductLink } from "@/lib/whatsapp";
 
 export default function ProductView({ product, related, categories }: { product: Product; related: Product[]; categories?: ShopCategory[] }) {
   const { t } = useLang();
-  const settings = useSettings();
   const p = product;
   const { addToCart, setCartOpen } = useShop();
   const [fabric, setFabric] = useState(FABRICS[0]);
@@ -61,10 +58,6 @@ export default function ProductView({ product, related, categories }: { product:
             </div>
             <div className="flex gap-2.5 flex-wrap">
               <button onClick={() => { addToCart(p, qty, `${fabric} / ${size} / ${color}`); setCartOpen(true); }} className="flex-1 inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] px-5 py-3 text-[17px] font-bold hover:bg-clay-dark"><ShoppingCart size={16} />{t.addToCart}</button>
-            </div>
-            <div className="flex gap-2.5 mt-2.5">
-              <a href={waProductLink(settings.wa_number, `${p.name} [${fabric}] [${size}] [${color}] x${qty} = ${p.now * qty}tk`)} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex justify-center items-center gap-2 bg-paper border border-line rounded-[35px] px-4 py-2.5 text-[16px] font-bold"><MessageCircle size={14} />{t.waOrder}</a>
-              <a href={telLink(settings)} className="inline-flex items-center gap-2 bg-paper border border-line rounded-[35px] px-4 py-2.5 text-[16px] font-bold"><Phone size={14} />{t.callNow}</a>
             </div>
             <div className="flex gap-2 flex-wrap my-3.5 text-base font-bold">
               <span className="inline-flex gap-1.5 items-center bg-paper border border-line rounded-full px-3 py-2"><Banknote size={14} />Cash on Delivery</span>

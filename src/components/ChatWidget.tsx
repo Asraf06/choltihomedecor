@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { MessageCircle, X, Send, Headset } from "lucide-react";
 import { useSettings, waLink } from "@/lib/settings-context";
 import { useLang, type Lang } from "@/lib/lang";
@@ -81,7 +82,7 @@ export default function ChatWidget() {
       {open && (
         <div className="fixed right-4 bottom-[84px] z-[80] w-[min(380px,calc(100vw-32px))] h-[min(540px,calc(100dvh-120px))] bg-paper border border-line rounded-3xl shadow-[0_24px_70px_rgba(62,32,12,0.25)] flex flex-col overflow-hidden">
           <div className="bg-forest text-white px-4 py-3 flex items-center gap-2.5 shrink-0">
-            <span className="w-9 h-9 rounded-full bg-gold text-forest grid place-items-center font-serif font-bold text-lg shrink-0">C</span>
+            <Image src="/logo.png" alt="Cholti Home Decor" width={72} height={36} className="w-9 h-9 rounded-full object-cover shrink-0" />
             <span className="flex-1 min-w-0">
               <b className="block text-[16px] leading-tight">{t.chatTitle}</b>
               <small className="flex items-center gap-1 text-[15px] text-[#c8d7d2]">
