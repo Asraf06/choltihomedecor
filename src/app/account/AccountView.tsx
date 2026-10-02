@@ -5,8 +5,7 @@ import Link from "next/link";
 import { Package, Star, Camera, Copy, Check, Trash2 } from "lucide-react";
 import { updateProfile } from "firebase/auth";
 import { doc, setDoc, getDoc, collection, query, where, orderBy, limit, getDocs, deleteDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { clientAuth, clientDb, clientStorage } from "@/lib/firebase-client";
+import { clientAuth, clientDb } from "@/lib/firebase-client";
 import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 
@@ -97,9 +96,17 @@ export default function AccountView() {
     }
     setUploading(true);
     try {
-      const r = ref(clientStorage, `avatars/${user.uid}/profile.jpg`);
-      await uploadBytes(r, f);
-      const url = await getDownloadURL(r);
+      const token = await user.getIdToken();
+      const fd = new FormData();
+      fd.append("file", f);
+      const res = await fetch("/api/upload-avatar", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(String(data.error ?? "upload"));
+      const url = String(data.url);
       if (clientAuth.currentUser) await updateProfile(clientAuth.currentUser, { photoURL: url });
       await setDoc(doc(clientDb, "users", user.uid), { photo: url, updated_at: new Date().toISOString() }, { merge: true });
       setPhoto(url);
