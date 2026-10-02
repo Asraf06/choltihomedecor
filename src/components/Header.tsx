@@ -131,17 +131,34 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
               <span className="relative">
                 <button
                   onClick={() => (user ? setAccountOpen((v) => !v) : router.push("/login"))}
-                  className={`relative w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold font-extrabold text-lg ${!user ? "before:content-[''] before:absolute before:-inset-1.5 before:rounded-full before:border-2 before:border-clay before:animate-[tj-ripple_2s_infinite]" : ""}`}
+                  className={`relative w-[42px] h-[42px] rounded-full bg-paper border border-line grid place-items-center text-forest dark:text-gold font-extrabold text-lg overflow-hidden ${!user ? "before:content-[''] before:absolute before:-inset-1.5 before:rounded-full before:border-2 before:border-clay before:animate-[tj-ripple_2s_infinite]" : ""}`}
                   aria-label="Account"
                 >
-                  {user ? (user.displayName?.[0] ?? user.email?.[0] ?? "U").toUpperCase() : <User size={17} />}
+                  {user?.photoURL ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    user ? (user.displayName?.[0] ?? user.email?.[0] ?? "U").toUpperCase() : <User size={17} />
+                  )}
                 </button>
                 {user && accountOpen && (
                   <>
                     <button aria-label="Close account menu" onClick={() => setAccountOpen(false)} className="fixed inset-0 z-[90] cursor-default bg-transparent" />
                     <span className="absolute right-0 top-full mt-2 z-[95] min-w-[220px] bg-paper border border-line rounded-2xl shadow-[0_18px_50px_rgba(62,32,12,0.10)] p-3">
-                      <b className="block text-[17px] truncate">{user.displayName || user.email}</b>
-                      {user.displayName && <small className="block text-[15px] text-muted truncate">{user.email}</small>}
+                      <span className="flex items-center gap-2.5">
+                        {user.photoURL ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                        ) : (
+                          <span className="w-10 h-10 rounded-full bg-sand border border-line grid place-items-center font-extrabold text-lg shrink-0">
+                            {(user.displayName?.[0] ?? user.email?.[0] ?? "U").toUpperCase()}
+                          </span>
+                        )}
+                        <span className="min-w-0">
+                          <b className="block text-[17px] truncate">{user.displayName || user.email}</b>
+                          {user.displayName && <small className="block text-[15px] text-muted truncate">{user.email}</small>}
+                        </span>
+                      </span>
                       <Link
                         href="/account"
                         onClick={() => setAccountOpen(false)}
