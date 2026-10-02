@@ -110,8 +110,9 @@ export default function AccountView() {
       if (clientAuth.currentUser) await updateProfile(clientAuth.currentUser, { photoURL: url });
       await setDoc(doc(clientDb, "users", user.uid), { photo: url, updated_at: new Date().toISOString() }, { merge: true });
       setPhoto(url);
-    } catch {
-      setMsg(t.uploadFailed);
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : "";
+      setMsg(detail && detail !== "upload" ? `Upload failed: ${detail}` : t.uploadFailed);
     } finally {
       setUploading(false);
     }
