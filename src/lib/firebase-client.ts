@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Public web config. apiKey in client code is normal Firebase practice.
 const config = {
@@ -16,3 +17,4 @@ const app = getApps().length ? getApps()[0] : initializeApp(config);
 
 export const clientAuth = getAuth(app);
 export const clientDb = getFirestore(app);
+export const clientStorage = getStorage(app);

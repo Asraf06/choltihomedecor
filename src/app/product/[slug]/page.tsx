@@ -4,7 +4,7 @@ import { getProducts, getCategories } from "@/lib/catalog-db";
 
 import ProductView from "./ProductView";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const products = await getProducts();

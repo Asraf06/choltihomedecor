@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { PRODUCTS, CATEGORIES, REVIEWS, type Product } from "./data";
+import { ttlCache } from "./ttl-cache";
 
 const UPLOADS_BASE = process.env.ADMIN_PUBLIC_URL ?? "http://localhost:3001";
 
@@ -80,11 +81,13 @@ function toReview(v: FirebaseFirestore.DocumentData): ShopReview {
 }
 
 async function activeDocs(collection: string) {
-  const snap = await fsdb().collection(collection).where("active", "==", 1).get();
-  return snap.docs
-    .map((d) => ({ order: Number(d.data().sort_order ?? 0), doc: d }))
-    .sort((a, b) => a.order - b.order)
-    .map((x) => x.doc);
+  return ttlCache(`active:${collection}`, 60_000, async () => {
+    const snap = await fsdb().collection(collection).where("active", "==", 1).get();
+    return snap.docs
+      .map((d) => ({ order: Number(d.data().sort_order ?? 0), doc: d }))
+      .sort((a, b) => a.order - b.order)
+      .map((x) => x.doc);
+  });
 }
 
 export async function getProducts(): Promise<Product[]> {

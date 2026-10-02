@@ -142,6 +142,13 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
                     <span className="absolute right-0 top-full mt-2 z-[95] min-w-[220px] bg-paper border border-line rounded-2xl shadow-[0_18px_50px_rgba(62,32,12,0.10)] p-3">
                       <b className="block text-[17px] truncate">{user.displayName || user.email}</b>
                       {user.displayName && <small className="block text-[15px] text-muted truncate">{user.email}</small>}
+                      <Link
+                        href="/account"
+                        onClick={() => setAccountOpen(false)}
+                        className="mt-2 w-full inline-flex items-center gap-2 rounded-xl px-3 py-2 text-[17px] font-bold hover:bg-sand"
+                      >
+                        <User size={14} />{t.myAccount}
+                      </Link>
                       <button
                         onClick={() => { setAccountOpen(false); signOutUser(); }}
                         className="mt-2 w-full inline-flex items-center gap-2 rounded-xl px-3 py-2 text-[17px] font-bold hover:bg-sand"

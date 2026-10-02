@@ -15,7 +15,7 @@ function messageFor(code: string, t: { errAuth: string; errInUse: string; errWea
 }
 
 export default function AuthForm() {
-  const { user, signInGoogle, signInEmail, signUpEmail } = useAuth();
+  const { user, signInGoogle, signInEmail, signUpEmail, notice } = useAuth();
   const { t } = useLang();
   const router = useRouter();
   const [mode, setMode] = useState<"in" | "up">("in");
@@ -80,6 +80,12 @@ export default function AuthForm() {
         <p role="alert" className="flex items-center gap-2 rounded-xl border border-clay/40 bg-clay-light px-3.5 py-2.5 text-[17px] font-bold text-clay mb-3">
           <AlertCircle size={16} className="shrink-0" />
           {error}
+        </p>
+      )}
+      {notice === "disabled" && (
+        <p role="alert" className="flex items-center gap-2 rounded-xl border border-clay/40 bg-clay-light px-3.5 py-2.5 text-[17px] font-bold text-clay mb-3">
+          <AlertCircle size={16} className="shrink-0" />
+          {t.accountDisabled}
         </p>
       )}
       <button

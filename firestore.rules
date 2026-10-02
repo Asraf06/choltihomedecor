@@ -1,13 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function owner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
     // Shop content is managed by the admin backend (Admin SDK bypasses rules).
-    // Clients only get their own user document.
+    // Clients only get their own user document. System fields
+    // (disabled, user_id, created_at) are admin-only once set.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if owner(userId);
+      allow create: if owner(userId)
+        && (!("disabled" in request.resource.data) || request.resource.data.disabled == false);
+      allow update: if owner(userId)
+        && request.resource.data.get("disabled", false) == resource.data.get("disabled", false)
+        && request.resource.data.get("user_id", "") == resource.data.get("user_id", "")
+        && request.resource.data.get("created_at", "") == resource.data.get("created_at", "");
     }
     match /users/{userId}/orders/{orderId} {
-      allow read, create: if request.auth != null && request.auth.uid == userId;
+      allow read, create: if owner(userId);
+    }
+    // Verified-purchase index, written at checkout. Lets clients and rules
+    // prove a user bought a product without scanning order history.
+    match /users/{userId}/purchased/{slug} {
+      allow read, create: if owner(userId);
+    }
+    // Verified-buyer product reviews. Only buyers can write (proven by the
+    // purchased index); everyone reads them.
+    match /product_reviews/{rid} {
+      allow read: if resource.data.approved == true;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.product_slug is string
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 2 && request.resource.data.text.size() <= 600
+        && request.resource.data.approved == true
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid)/purchased/$(request.resource.data.product_slug));
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid || request.auth.token.admin == true);
     }
     match /{document=**} {
       allow read, write: if false;

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Full catalog: sofa cover, bedsheet, cushion cover and curtain. Add to cart and order on WhatsApp.",
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function ShopPage() {
   const [products, categories, subs] = await Promise.all([getProducts(), getCategories(), getSubcategories()]);

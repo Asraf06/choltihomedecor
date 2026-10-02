@@ -6,7 +6,7 @@ import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
 import { getProducts, getCategories, getSubcategories } from "@/lib/catalog-db";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const cats = await getCategories();

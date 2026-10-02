@@ -8,7 +8,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { getHero } from "@/lib/hero-db";
 import { getProducts, getCategories, getReviews } from "@/lib/catalog-db";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function Home() {
   const [hero, products, categories, reviews] = await Promise.all([

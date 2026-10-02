@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { BANNER_SLIDES, HERO_STYLE, type BannerSlide, type HeroStyle } from "./hero";
+import { ttlCache } from "./ttl-cache";
 
 const UPLOADS_BASE = process.env.ADMIN_PUBLIC_URL ?? "http://localhost:3001";
 
@@ -59,6 +60,7 @@ function inWindow(starts: unknown, ends: unknown, t: string) {
 
 // Reads hero straight from Firestore. Static fallback keeps the site up if Firebase is down.
 export async function getHero(): Promise<HeroPayload> {
+  return ttlCache("hero", 60_000, async () => {
   try {
     const db = fsdb();
     const [cfg, snap] = await Promise.all([
@@ -79,4 +81,5 @@ export async function getHero(): Promise<HeroPayload> {
     console.warn("[hero-db] Firestore unreachable, static fallback:", e instanceof Error ? e.message : e);
     return { style: HERO_STYLE, slides: BANNER_SLIDES };
   }
+  });
 }

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, MessageCircle } from "lucide-react";
 import Image from "next/image";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
@@ -53,7 +53,8 @@ export default function CartDrawer() {
       return;
     }
     setErr(null);
-    // Logged-in users get an order record for account tracking.
+    // Logged-in users get an order record for account tracking, plus a
+    // verified-purchase index so reviews can prove the buyer ordered the item.
     if (user) {
       addDoc(collection(clientDb, "users", user.uid, "orders"), {
         items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now })),
@@ -66,6 +67,10 @@ export default function CartDrawer() {
         status: "pending",
         created_at: new Date().toISOString(),
       }).catch(() => {});
+      const at = new Date().toISOString();
+      [...new Set(cart.map((c) => c.slug))].forEach((slug) => {
+        setDoc(doc(clientDb, "users", user.uid, "purchased", slug), { at }, { merge: true }).catch(() => {});
+      });
     }
     const msg = buildOrderMessage(cart, parsed.data, sub, del, total);
     window.open(waOrderLink(settings.wa_number, msg), "_blank", "noopener,noreferrer");

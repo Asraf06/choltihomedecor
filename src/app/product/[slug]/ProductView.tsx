@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
+import ProductReviews from "@/components/ProductReviews";
 import { FABRICS } from "@/lib/data";
 import type { Product } from "@/lib/data";
 import type { ShopCategory } from "@/lib/catalog-db";
@@ -72,6 +73,7 @@ export default function ProductView({ product, related, categories }: { product:
             </div>
           </div>
         </div>
+        <ProductReviews slug={p.slug} productName={p.name} />
         <h2 className="font-serif text-2xl my-3.5">{t.alsoLove} <span className="italic-accent">{t.love}</span></h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-10">
           {related.map((r) => (

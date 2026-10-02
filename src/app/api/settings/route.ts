@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { ttlCache } from "@/lib/ttl-cache";
 
 export const runtime = "nodejs";
 
@@ -16,20 +17,23 @@ const DEFAULTS: Record<string, string> = {
 
 // Website display settings managed from the admin panel (contact info, font size, etc).
 export async function GET() {
-  const settings = { ...DEFAULTS };
-  try {
-    const db = adminDb();
-    await Promise.all(
-      Object.keys(DEFAULTS).map(async (key) => {
-        const snap = await db.doc(`settings/${key}`).get();
-        const v = snap.data()?.value;
-        if (typeof v === "string" && v) {
-          if (key === "font_scale" && !["90", "100", "112", "125"].includes(v)) return;
-          settings[key] = v;
-        }
-      })
-    );
-  } catch {}
+  const settings = await ttlCache("settings", 60_000, async () => {
+    const out = { ...DEFAULTS };
+    try {
+      const db = adminDb();
+      await Promise.all(
+        Object.keys(DEFAULTS).map(async (key) => {
+          const snap = await db.doc(`settings/${key}`).get();
+          const v = snap.data()?.value;
+          if (typeof v === "string" && v) {
+            if (key === "font_scale" && !["90", "100", "112", "125"].includes(v)) return;
+            out[key] = v;
+          }
+        })
+      );
+    } catch {}
+    return out;
+  });
   return NextResponse.json(
     {
       settings: {
