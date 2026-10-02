@@ -20,6 +20,18 @@ service cloud.firestore {
     match /users/{userId}/orders/{orderId} {
       allow read, create: if owner(userId);
     }
+    // Site checkout orders. Anyone can place an order (guests too);
+    // only the admin backend reads/updates them.
+    match /orders/{orderId} {
+      allow create: if request.resource.data.items is list
+        && request.resource.data.items.size() >= 1 && request.resource.data.items.size() <= 20
+        && request.resource.data.total is number
+        && request.resource.data.name is string && request.resource.data.name.size() >= 3 && request.resource.data.name.size() <= 60
+        && request.resource.data.phone is string && request.resource.data.phone.size() >= 6 && request.resource.data.phone.size() <= 15
+        && request.resource.data.address is string && request.resource.data.address.size() >= 10 && request.resource.data.address.size() <= 300
+        && request.resource.data.status == "new";
+      allow read, update, delete: if false;
+    }
     // Verified-purchase index, written at checkout. Lets clients and rules
     // prove a user bought a product without scanning order history.
     match /users/{userId}/purchased/{slug} {

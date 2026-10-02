@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X, MessageCircle } from "lucide-react";
+import { X, MessageCircle, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { collection, addDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
@@ -21,6 +21,12 @@ export default function CartDrawer() {
   const [address, setAddress] = useState("");
   const [area, setArea] = useState<"80" | "130">("80");
   const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [placedId, setPlacedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cart.length) setPlacedId(null);
+  }, [cart.length]);
 
   const { sub, del, total } = useMemo(() => {
     const s = cart.reduce((a, c) => a + c.now * c.qty, 0);
@@ -67,6 +73,42 @@ export default function CartDrawer() {
     };
   }, [cartOpen, user]);
 
+  const saveOrder = async (parsed: { name: string; phone: string; address: string }) => {
+    const at = new Date().toISOString();
+    const ref = await addDoc(collection(clientDb, "orders"), {
+      items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now, img: c.img })),
+      subtotal: sub,
+      delivery: del,
+      total,
+      name: parsed.name,
+      phone: parsed.phone,
+      address: parsed.address,
+      area,
+      uid: user?.uid ?? "",
+      email: user?.email ?? "",
+      status: "new",
+      source: "site",
+      created_at: at,
+    });
+    if (user) {
+      addDoc(collection(clientDb, "users", user.uid, "orders"), {
+        items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now })),
+        subtotal: sub,
+        delivery: del,
+        total,
+        name: parsed.name,
+        phone: parsed.phone,
+        address: parsed.address,
+        status: "pending",
+        created_at: at,
+      }).catch(() => {});
+      [...new Set(cart.map((c) => c.slug))].forEach((slug) => {
+        setDoc(doc(clientDb, "users", user.uid, "purchased", slug), { at }, { merge: true }).catch(() => {});
+      });
+    }
+    return ref.id;
+  };
+
   const confirm = () => {
     const parsed = CheckoutSchema.safeParse({ name, phone, address, area });
     if (!parsed.success) {
@@ -78,28 +120,32 @@ export default function CartDrawer() {
       return;
     }
     setErr(null);
-    // Logged-in users get an order record for account tracking, plus a
-    // verified-purchase index so reviews can prove the buyer ordered the item.
-    if (user) {
-      addDoc(collection(clientDb, "users", user.uid, "orders"), {
-        items: cart.map((c) => ({ slug: c.slug, name: c.name, fabric: c.fabric, qty: c.qty, now: c.now })),
-        subtotal: sub,
-        delivery: del,
-        total,
-        name: parsed.data.name,
-        phone: parsed.data.phone,
-        address: parsed.data.address,
-        status: "pending",
-        created_at: new Date().toISOString(),
-      }).catch(() => {});
-      const at = new Date().toISOString();
-      [...new Set(cart.map((c) => c.slug))].forEach((slug) => {
-        setDoc(doc(clientDb, "users", user.uid, "purchased", slug), { at }, { merge: true }).catch(() => {});
-      });
-    }
     const msg = buildOrderMessage(cart, parsed.data, sub, del, total);
     clearCart();
     window.open(waOrderLink(settings.wa_number, msg), "_blank", "noopener,noreferrer");
+  };
+
+  const orderNow = async () => {
+    const parsed = CheckoutSchema.safeParse({ name, phone, address, area });
+    if (!parsed.success) {
+      setErr(parsed.error.issues[0]?.message ?? "Form thik koro");
+      return;
+    }
+    if (!cart.length) {
+      setErr("Cart khali ase");
+      return;
+    }
+    setErr(null);
+    setBusy(true);
+    try {
+      const id = await saveOrder(parsed.data);
+      clearCart();
+      setPlacedId(id);
+    } catch {
+      setErr(t.uploadFailed);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -141,7 +187,19 @@ export default function CartDrawer() {
           <div className="flex justify-between text-lg"><span>{t.subtotal}</span><span>{sub.toLocaleString()}৳</span></div>
           <div className="flex justify-between text-lg"><span>{t.delivery}</span><span>{del.toLocaleString()}৳</span></div>
           <div className="flex justify-between text-[17px] font-extrabold text-clay"><span>{t.total}</span><span>{total.toLocaleString()}৳</span></div>
-          <button onClick={confirm} className="w-full inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] py-3 text-[17px] font-bold mt-2.5 hover:bg-clay-dark"><MessageCircle size={15} />{t.confirm}</button>
+          {placedId ? (
+            <div className="rounded-2xl border border-forest/30 bg-forest/5 p-4 mt-2.5 text-center">
+              <b className="text-[18px] text-forest block">{t.orderPlaced}</b>
+              <p className="text-[15px] text-muted mt-1">{t.orderPlacedSub}</p>
+              <p className="text-[14px] text-muted mt-1">{t.orderIdLabel}: <code className="font-bold">{placedId.slice(0, 8).toUpperCase()}</code></p>
+              <button onClick={() => { setPlacedId(null); setCartOpen(false); }} className="mt-2.5 inline-flex bg-forest text-white rounded-[35px] px-6 py-2 text-[16px] font-bold">{t.shop}</button>
+            </div>
+          ) : (
+            <>
+              <button onClick={orderNow} disabled={busy || !cart.length} className="w-full inline-flex justify-center items-center gap-2 bg-forest text-white rounded-[35px] py-3 text-[17px] font-bold mt-2.5 hover:opacity-90 disabled:opacity-50"><ShoppingBag size={15} />{busy ? "..." : t.orderNow}</button>
+              <button onClick={confirm} className="w-full inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] py-3 text-[17px] font-bold mt-2 hover:bg-clay-dark"><MessageCircle size={15} />{t.confirm}</button>
+            </>
+          )}
           <p className="text-[15px] text-muted text-center mt-1">{t.codNote}</p>
         </div>
       </aside>
