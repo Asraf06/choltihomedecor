@@ -30,6 +30,7 @@ type ShopState = {
   toggleWish: (slug: string) => void;
   cart: CartItem[];
   addToCart: (p: Product, qty: number, fabric: string) => void;
+  clearCart: () => void;
   updateQty: (idx: number, d: number) => void;
   removeItem: (idx: number) => void;
   cartOpen: boolean;
@@ -133,6 +134,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
           c.map((it, i) => (i === idx ? { ...it, qty: Math.min(99, Math.max(1, it.qty + d)) } : it))
         ),
       removeItem: (idx) => setCart((c) => c.filter((_, i) => i !== idx)),
+      clearCart: () => setCart([]),
       cartOpen,
       setCartOpen,
       cartCount: cart.reduce((a, c) => a + c.qty, 0),

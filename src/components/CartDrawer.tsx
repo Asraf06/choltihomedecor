@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, MessageCircle } from "lucide-react";
 import Image from "next/image";
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
@@ -14,7 +14,7 @@ import { CheckoutSchema, buildOrderMessage, waOrderLink } from "@/lib/whatsapp";
 export default function CartDrawer() {
   const { t } = useLang();
   const { user } = useAuth();
-  const { cart, updateQty, removeItem, cartOpen, setCartOpen } = useShop();
+  const { cart, updateQty, removeItem, clearCart, cartOpen, setCartOpen } = useShop();
   const settings = useSettings();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -41,6 +41,31 @@ export default function CartDrawer() {
       document.body.style.overflow = prev;
     };
   }, [cartOpen, setCartOpen]);
+
+  useEffect(() => {
+    if (!cartOpen || !user) return;
+    const fillName = !name;
+    const fillPhone = !phone;
+    const fillAddr = !address;
+    if (!fillName && !fillPhone && !fillAddr) return;
+    let live = true;
+    getDoc(doc(clientDb, "users", user.uid))
+      .then((s) => {
+        if (!live) return;
+        const d = s.data();
+        const arr = Array.isArray(d?.addresses) ? d.addresses : [];
+        const pick = arr.find((a) => a && a.id === d?.default_address) ?? arr[0];
+        if (!pick) return;
+        if (fillName && pick.name) setName(String(pick.name));
+        if (fillPhone && pick.phone) setPhone(String(pick.phone));
+        if (fillAddr && pick.address) setAddress(String(pick.address));
+        if (pick.area === "80" || pick.area === "130") setArea(pick.area);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [cartOpen, user]);
 
   const confirm = () => {
     const parsed = CheckoutSchema.safeParse({ name, phone, address, area });
@@ -73,6 +98,7 @@ export default function CartDrawer() {
       });
     }
     const msg = buildOrderMessage(cart, parsed.data, sub, del, total);
+    clearCart();
     window.open(waOrderLink(settings.wa_number, msg), "_blank", "noopener,noreferrer");
   };
 

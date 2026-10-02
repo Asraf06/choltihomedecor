@@ -8,6 +8,7 @@ import { doc, setDoc, getDoc, collection, query, where, orderBy, limit, getDocs,
 import { clientAuth, clientDb } from "@/lib/firebase-client";
 import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
+import AddressBook from "./AddressBook";
 
 type Order = {
   id: string;
@@ -164,6 +165,7 @@ export default function AccountView() {
           </button>
         </section>
         <div className="flex flex-col gap-5">
+          <AddressBook />
           <section className="bg-paper border border-line rounded-[20px] p-5">
             <h2 className="font-serif text-2xl mb-3">{t.myOrders}</h2>
             {!orders ? (
