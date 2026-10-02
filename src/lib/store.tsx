@@ -77,29 +77,49 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   }, [wishlist, cart, hydrated]);
 
-  // Logged in: merge device data into the account once, then keep Firestore updated.
+  // Logged in: Firestore is the source of truth (cart follows the account
+  // across devices). Merge device + cloud with MAX qty so re-mounts and
+  // refreshes are idempotent — quantities never double up.
   useEffect(() => {
     if (!hydrated || !user || syncedUid.current === user.uid) return;
-    syncedUid.current = user.uid;
+    const uid = user.uid;
+    let cancelled = false;
     (async () => {
       try {
-        const snap = await getDoc(doc(clientDb, "users", user.uid));
+        const snap = await getDoc(doc(clientDb, "users", uid));
+        if (cancelled) return;
         const cloud = snap.data() as { wishlist?: string[]; cart?: CartItem[] } | undefined;
         const mergedWish = [...new Set([...read<string[]>("cholti_wish", []), ...(cloud?.wishlist ?? [])])];
         const byKey = new Map<string, CartItem>();
         for (const it of [...read<CartItem[]>("cholti_cart", []), ...(cloud?.cart ?? [])]) {
           const k = `${it.slug}||${it.fabric}`;
           const prev = byKey.get(k);
-          byKey.set(k, prev ? { ...it, qty: Math.min(99, prev.qty + it.qty) } : it);
+          byKey.set(k, prev ? { ...it, qty: Math.max(prev.qty, it.qty) } : it);
         }
         const mergedCart = [...byKey.values()];
         setWishlist(mergedWish);
         setCart(mergedCart);
-        await setDoc(doc(clientDb, "users", user.uid), { wishlist: mergedWish, cart: mergedCart }, { merge: true });
+        syncedUid.current = uid;
+        const sameCart =
+          mergedCart.length === (cloud?.cart ?? []).length &&
+          mergedCart.every((it) =>
+            (cloud?.cart ?? []).some(
+              (c) => `${c.slug}||${c.fabric}` === `${it.slug}||${it.fabric}` && c.qty === it.qty
+            )
+          );
+        const sameWish =
+          mergedWish.length === (cloud?.wishlist ?? []).length &&
+          mergedWish.every((w) => (cloud?.wishlist ?? []).includes(w));
+        if (!sameCart || !sameWish) {
+          await setDoc(doc(clientDb, "users", uid), { wishlist: mergedWish, cart: mergedCart }, { merge: true }).catch(() => {});
+        }
       } catch {
-        // offline or rules issue: device copy keeps working
+        // read failed: keep device copy, never clobber cloud. Retries next mount/login.
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [hydrated, user]);
 
   useEffect(() => {
