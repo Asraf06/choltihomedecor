@@ -5,12 +5,12 @@ import { getStorage } from "firebase/storage";
 
 // Public web config. apiKey in client code is normal Firebase practice.
 const config = {
-  apiKey: "AIzaSyA945ovEWbxFlXn-4BVM5fW-MlX1CSMUGM",
-  authDomain: "choltihomedecor-8bd24.firebaseapp.com",
-  projectId: "choltihomedecor-8bd24",
-  storageBucket: "choltihomedecor-8bd24.firebasestorage.app",
-  messagingSenderId: "19056523769",
-  appId: "1:19056523769:web:6c649e693e65d84856a528",
+  apiKey: "AIzaSyAz2gNxH5ItL-0Zp0OWoTqCwRrwsJq7-sw",
+  authDomain: "choltihomedecor-a2db3.firebaseapp.com",
+  projectId: "choltihomedecor-a2db3",
+  storageBucket: "choltihomedecor-a2db3.firebasestorage.app",
+  messagingSenderId: "656524477508",
+  appId: "1:656524477508:web:01cac1dde2733ddb61a811",
 };
 
 const app = getApps().length ? getApps()[0] : initializeApp(config);
