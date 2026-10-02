@@ -5,7 +5,7 @@ import { X, MessageCircle, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { collection, addDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 import { useSettings } from "@/lib/settings-context";
@@ -86,6 +86,8 @@ export default function CartDrawer() {
       area,
       uid: user?.uid ?? "",
       email: user?.email ?? "",
+      user_id: user ? publicUserId(user.uid) : "",
+      photo: user?.photoURL ?? "",
       status: "new",
       source: "site",
       created_at: at,
