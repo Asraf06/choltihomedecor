@@ -24,6 +24,9 @@ function fsdb() {
 export type ShopCategory = { id: string; name: string; bn: string; img: string; count: string; badge?: string };
 export type ShopSub = { id: string; cat: string; name: string; bn: string; img: string; count: string; badge?: string };
 export type ShopReview = { t: string; n: string; a: string };
+export type ShopFabric = { id: string; name: string };
+export type ShopSize = { id: string; name: string; cats: string[] };
+export type ShopColor = { id: string; name: string; hex: string };
 
 const absolutize = (src: string) => (src.startsWith("/uploads/") ? `${UPLOADS_BASE}${src}` : src);
 
@@ -137,4 +140,83 @@ export async function getReviews(): Promise<ShopReview[]> {
     console.warn("[catalog-db] reviews fallback:", e instanceof Error ? e.message : e);
     return REVIEWS;
   }
+}
+
+const FALLBACK_FABRICS: ShopFabric[] = [
+  { id: "china-magic-print", name: "China Magic Print" },
+  { id: "korean-velvet", name: "Korean Velvet" },
+  { id: "fujian-jacquard", name: "Fujian Jacquard" },
+];
+
+const FALLBACK_COLORS: ShopColor[] = [
+  { id: "terracotta", name: "Terracotta", hex: "#BC4621" },
+  { id: "beige", name: "Beige", hex: "#D9C7A7" },
+  { id: "sage", name: "Sage", hex: "#8A9B7C" },
+  { id: "grey", name: "Grey", hex: "#8a8a8a" },
+];
+
+const FALLBACK_SIZES: Record<string, string[]> = {
+  bedsheet: ["Queen", "King"],
+  curtain: ["7ft", "8ft"],
+  sofa: ["Single 3-seater", "5-seater", "7-seater"],
+};
+
+export async function getFabrics(): Promise<ShopFabric[]> {
+  return ttlCache("fabrics", 60_000, async () => {
+    try {
+      const docs = await activeDocs("fabrics");
+      if (!docs.length) throw new Error("no fabrics");
+      return docs
+        .map((d) => ({ order: Number(d.data().sort_order ?? 0), f: { id: d.id, name: String(d.data().name ?? "") } as ShopFabric }))
+        .sort((a, b) => a.order - b.order)
+        .map((x) => x.f)
+        .filter((f) => f.name);
+    } catch {
+      return FALLBACK_FABRICS;
+    }
+  });
+}
+
+export async function getColors(): Promise<ShopColor[]> {
+  return ttlCache("colors", 60_000, async () => {
+    try {
+      const docs = await activeDocs("colors");
+      if (!docs.length) throw new Error("no colors");
+      return docs
+        .map((d) => ({
+          order: Number(d.data().sort_order ?? 0),
+          c: { id: d.id, name: String(d.data().name ?? ""), hex: String(d.data().hex ?? "#999999") } as ShopColor,
+        }))
+        .sort((a, b) => a.order - b.order)
+        .map((x) => x.c)
+        .filter((c) => c.name);
+    } catch {
+      return FALLBACK_COLORS;
+    }
+  });
+}
+
+export async function getSizes(cat: string): Promise<ShopSize[]> {
+  return ttlCache(`sizes:${cat}`, 60_000, async () => {
+    try {
+      const docs = await activeDocs("sizes");
+      const all = docs
+        .map((d) => ({
+          order: Number(d.data().sort_order ?? 0),
+          s: {
+            id: d.id,
+            name: String(d.data().name ?? ""),
+            cats: Array.isArray(d.data().cats) ? (d.data().cats as string[]) : [],
+          } as ShopSize,
+        }))
+        .sort((a, b) => a.order - b.order)
+        .map((x) => x.s)
+        .filter((s) => s.name);
+      const mine = all.filter((s) => !s.cats.length || s.cats.includes(cat));
+      if (mine.length) return mine;
+      throw new Error("no sizes");
+    } catch {
+      return (FALLBACK_SIZES[cat] ?? FALLBACK_SIZES.sofa).map((name, i) => ({ id: `fb-${i}`, name, cats: [] }));
+    }
+  });
 }

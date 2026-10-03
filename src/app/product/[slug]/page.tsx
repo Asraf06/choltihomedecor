@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProducts, getCategories } from "@/lib/catalog-db";
+import { getProducts, getCategories, getFabrics, getSizes, getColors } from "@/lib/catalog-db";
 
 import ProductView from "./ProductView";
 
@@ -28,5 +28,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const product = products.find((x) => x.slug === slug);
   if (!product) notFound();
   const related = products.filter((x) => x.slug !== slug).slice(0, 4);
-  return <ProductView product={product} related={related} categories={cats} />;
+  const [fabrics, sizes, colors] = await Promise.all([getFabrics(), getSizes(product.cat), getColors()]);
+  return <ProductView product={product} related={related} categories={cats} fabrics={fabrics} sizes={sizes} colors={colors} />;
 }
