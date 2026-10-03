@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
 
@@ -11,6 +11,7 @@ export default function SearchBox({ placeholder, label }: { placeholder: string;
   const { search, setSearch } = useShop();
   const { t } = useLang();
   const router = useRouter();
+  const pathname = usePathname();
   const [hits, setHits] = useState<Hit[]>([]);
   const [done, setDone] = useState(false);
   const [open, setOpen] = useState(false);
@@ -48,6 +49,11 @@ export default function SearchBox({ placeholder, label }: { placeholder: string;
   }, [search]);
 
   useEffect(() => {
+    setOpen(false);
+    setHi(-1);
+  }, [pathname]);
+
+  useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
     };
@@ -69,7 +75,6 @@ export default function SearchBox({ placeholder, label }: { placeholder: string;
         onKeyDown={(e) => {
           if (e.key === "ArrowDown" && hits.length) { e.preventDefault(); setHi((h) => (h + 1) % hits.length); }
           else if (e.key === "ArrowUp" && hits.length) { e.preventDefault(); setHi((h) => (h - 1 + hits.length) % hits.length); }
-          else if (e.key === "Enter" && hi >= 0 && hits[hi]) { e.preventDefault(); e.stopPropagation(); go(hits[hi].slug); }
           else if (e.key === "Escape") setOpen(false);
         }}
         placeholder={placeholder}
