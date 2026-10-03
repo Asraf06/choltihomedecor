@@ -10,6 +10,7 @@ import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 import { uploadWithProgress } from "@/lib/upload-client";
 import AddressBook from "./AddressBook";
+import CompressModal from "@/components/CompressModal";
 
 type Order = {
   id: string;
@@ -40,6 +41,7 @@ export default function AccountView() {
   const [msg, setMsg] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [reviews, setReviews] = useState<Review[] | null>(null);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -93,16 +95,25 @@ export default function AccountView() {
   const onPhoto = async (f: File | undefined) => {
     if (!f) return;
     setMsg(null);
-    if (!f.type.startsWith("image/") || f.size > 2 * 1024 * 1024) {
-      setMsg(t.photoTooBig);
+    if (!f.type.startsWith("image/")) {
+      setMsg(t.uploadFailed);
       return;
     }
+    if (f.size > 1024 * 1024) {
+      setPendingPhoto(f);
+      return;
+    }
+    await uploadBlob(f);
+  };
+
+  const uploadBlob = async (payload: Blob) => {
+    setPendingPhoto(null);
     setUploading(true);
     setUpPct(0);
     try {
       const token = await user.getIdToken();
       const fd = new FormData();
-      fd.append("file", f);
+      fd.append("file", payload);
       const data = (await uploadWithProgress(
         "/api/upload-avatar",
         fd,
@@ -171,6 +182,14 @@ export default function AccountView() {
           <button onClick={saveName} className="mt-3 w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-[17px] font-bold hover:bg-clay-dark">
             {savedTick ? <Check size={15} /> : null}{savedTick ? t.saved : t.saveChanges}
           </button>
+          {pendingPhoto && (
+            <CompressModal
+              file={pendingPhoto}
+              maxBytes={2 * 1024 * 1024}
+              onConfirm={(blob) => uploadBlob(blob)}
+              onCancel={() => setPendingPhoto(null)}
+            />
+          )}
         </section>
         <div className="flex flex-col gap-5">
           <AddressBook />
