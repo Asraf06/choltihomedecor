@@ -111,8 +111,6 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
     return m;
   }, [source, subs]);
 
-  const directCount = (c: string) => source.filter((p) => p.cat === c && !p.sub).length;
-
   const list = useMemo(() => {
     const q = search.trim().toLowerCase();
     const filtered = source.filter(
@@ -158,7 +156,7 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
           )}
           {sub !== "all" && (
             <button onClick={() => selectSubOnly("all")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
-              {sub === "" ? (lang === "bn" ? "সরাসরি" : "Direct") : (allSubs.find((s) => s.id === sub)?.name ?? sub)}<X size={12} />
+              {allSubs.find((s) => s.id === sub)?.name ?? sub}<X size={12} />
             </button>
           )}
           {sort !== "featured" && (
@@ -230,15 +228,6 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
                         <span className={`text-[15px] rounded-full px-2 py-0.5 ${sub === s.id && isActive ? "bg-white/20" : "bg-sand text-muted"}`}>{subCounts[s.id] ?? 0}</span>
                       </button>
                     ))}
-                    {!!directCount(c.id) && (
-                      <button
-                        onClick={() => selectSub(c.id, "")}
-                        className={`flex justify-between items-center rounded-lg px-3 py-2 text-[16.5px] font-bold border ${sub === "" && isActive ? "bg-forest border-forest text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
-                      >
-                        {lang === "bn" ? "সরাসরি" : "Direct"}
-                        <span className={`text-[15px] rounded-full px-2 py-0.5 ${sub === "" && isActive ? "bg-white/20" : "bg-sand text-muted"}`}>{directCount(c.id)}</span>
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
@@ -277,14 +266,6 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
                 {subName(s)} ({subCounts[s.id] ?? 0})
               </button>
             ))}
-            {!!directCount(cat) && (
-              <button
-                onClick={() => selectSubOnly("")}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-[16px] font-bold border ${sub === "" ? "bg-forest border-forest text-white" : "bg-paper border-line"}`}
-              >
-                {lang === "bn" ? "সরাসরি" : "Direct"} ({directCount(cat)})
-              </button>
-            )}
           </div>
         )}
         <div className="flex items-center justify-between gap-3 mb-4">
