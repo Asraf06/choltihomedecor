@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
+import SearchBox from "./SearchBox";
 
 function LangToggle() {
   const { lang, setLang } = useLang();
@@ -124,8 +125,8 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
               onSubmit={(e) => { e.preventDefault(); if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
               className="hidden sm:flex flex-1 max-w-[520px] mx-auto items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]"
             >
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.searchPh} className="flex-1 bg-transparent outline-none text-lg" aria-label="Search products" maxLength={60} />
-              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center hover:bg-clay-dark" aria-label="Search"><Search size={16} /></button>
+              <SearchBox placeholder={t.searchPh} label="Search products" />
+              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center hover:bg-clay-dark shrink-0" aria-label="Search"><Search size={16} /></button>
             </form>
 
             <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0">
@@ -190,8 +191,8 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
               onSubmit={(e) => { e.preventDefault(); if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
               className="flex flex-1 items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]"
             >
-              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.searchPhM} className="flex-1 bg-transparent outline-none text-lg" aria-label="Search mobile" maxLength={60} />
-              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center" aria-label="Search"><Search size={16} /></button>
+              <SearchBox placeholder={t.searchPhM} label="Search mobile" />
+              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center shrink-0" aria-label="Search"><Search size={16} /></button>
             </form>
           </div>
 
