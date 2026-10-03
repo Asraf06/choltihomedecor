@@ -10,7 +10,6 @@ import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
 import { uploadWithProgress } from "@/lib/upload-client";
 import AddressBook from "./AddressBook";
-import CompressModal from "@/components/CompressModal";
 
 type Order = {
   id: string;
@@ -41,8 +40,42 @@ export default function AccountView() {
   const [msg, setMsg] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [reviews, setReviews] = useState<Review[] | null>(null);
-  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function autoCompress(f: File): Promise<Blob> {
+    const url = URL.createObjectURL(f);
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const im = new Image();
+        im.onload = () => resolve(im);
+        im.onerror = reject;
+        im.src = url;
+      });
+      const scale = Math.min(1, 800 / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return f;
+      const mime = f.type === "image/webp" ? "image/webp" : "image/jpeg";
+      if (mime === "image/jpeg") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      for (const q of [0.85, 0.75, 0.65, 0.55]) {
+        const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, mime, q));
+        if (blob && (blob.size <= 600 * 1024 || q === 0.55)) return blob;
+      }
+      return f;
+    } catch {
+      return f;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -99,18 +132,11 @@ export default function AccountView() {
       setMsg(t.uploadFailed);
       return;
     }
-    if (f.size > 1024 * 1024) {
-      setPendingPhoto(f);
-      return;
-    }
-    await uploadBlob(f);
-  };
-
-  const uploadBlob = async (payload: Blob) => {
-    setPendingPhoto(null);
     setUploading(true);
-    setUpPct(0);
+    setUpPct(5);
     try {
+      const payload = f.size > 1024 * 1024 ? await autoCompress(f) : f;
+      setUpPct(30);
       const token = await user.getIdToken();
       const fd = new FormData();
       fd.append("file", payload);
@@ -182,14 +208,6 @@ export default function AccountView() {
           <button onClick={saveName} className="mt-3 w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-[17px] font-bold hover:bg-clay-dark">
             {savedTick ? <Check size={15} /> : null}{savedTick ? t.saved : t.saveChanges}
           </button>
-          {pendingPhoto && (
-            <CompressModal
-              file={pendingPhoto}
-              maxBytes={2 * 1024 * 1024}
-              onConfirm={(blob) => uploadBlob(blob)}
-              onCancel={() => setPendingPhoto(null)}
-            />
-          )}
         </section>
         <div className="flex flex-col gap-5">
           <AddressBook />
