@@ -120,10 +120,13 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
               <span className="leading-none hidden min-[400px]:block"><b className="font-serif text-[22px] text-forest dark:text-gold">Cholti</b><small className="block text-[14px] tracking-[2.4px] text-gold font-extrabold">HOME DECOR</small></span>
             </Link>
 
-            <div className="hidden sm:flex flex-1 max-w-[520px] mx-auto items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]">
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
+              className="hidden sm:flex flex-1 max-w-[520px] mx-auto items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]"
+            >
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.searchPh} className="flex-1 bg-transparent outline-none text-lg" aria-label="Search products" maxLength={60} />
-              <button className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center hover:bg-clay-dark" aria-label="Search"><Search size={16} /></button>
-            </div>
+              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center hover:bg-clay-dark" aria-label="Search"><Search size={16} /></button>
+            </form>
 
             <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0">
               <span className="hidden sm:inline-flex"><LangToggle /></span>
@@ -183,10 +186,13 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
           </div>
 
           <div className="sm:hidden px-5 pb-2.5">
-            <div className="flex flex-1 items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]">
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
+              className="flex flex-1 items-center bg-sand border border-line rounded-[35px] h-[42px] pl-5 pr-[5px]"
+            >
               <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.searchPhM} className="flex-1 bg-transparent outline-none text-lg" aria-label="Search mobile" maxLength={60} />
-              <button className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center" aria-label="Search"><Search size={16} /></button>
-            </div>
+              <button type="submit" className="w-[34px] h-[34px] rounded-full bg-clay text-white grid place-items-center" aria-label="Search"><Search size={16} /></button>
+            </form>
           </div>
 
           <nav className="hidden lg:block bg-paper border-t border-line">

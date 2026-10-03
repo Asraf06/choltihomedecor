@@ -4,12 +4,14 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export type Lang = "bn" | "en";
 
-const STRINGS = {
+export const STRINGS = {
   en: {
     welcome: "Welcome to Cholti Home Decor, Better Home, Better Life",
     welcomeShort: "Cholti Home Decor",
     searchPh: "Search sofa cover, bedsheet, curtain...",
     searchPhM: "Search...",
+    searchResults: "Results for",
+    noResults: "No products found. Try another word.",
     waOrder: "WhatsApp Order",
     browse: "Browse Categories",
     home: "Home",
@@ -178,6 +180,8 @@ const STRINGS = {
     welcomeShort: "চলতি হোম ডেকোর",
     searchPh: "সোফা কভার, বেডশিট, পর্দা খুঁজুন...",
     searchPhM: "খুঁজুন...",
+    searchResults: "যা পাওয়া গেছে",
+    noResults: "কিছু পাওয়া যায়নি। অন্য শব্দ লিখুন।",
     waOrder: "হোয়াটসঅ্যাপে অর্ডার",
     browse: "ক্যাটাগরি দেখুন",
     home: "হোম",
