@@ -13,6 +13,16 @@ export async function GET() {
       keyOk = true;
     }
   } catch {}
+  let fsTest = "skipped";
+  if (keyOk) {
+    try {
+      const { adminDb } = await import("@/lib/firebase-admin");
+      const snap = await adminDb().collection("settings").limit(1).get();
+      fsTest = `ok docs=${snap.size}`;
+    } catch (e) {
+      fsTest = `FAIL: ${e instanceof Error ? `${e.name}: ${e.message}`.slice(0, 300) : String(e).slice(0, 100)}`;
+    }
+  }
   return NextResponse.json({
     hasFirebaseSA: raw.length > 0,
     saLength: raw.length,
@@ -21,5 +31,6 @@ export async function GET() {
     hasRevalidateSecret: (process.env.REVALIDATE_SECRET ?? "").length > 0,
     hasImagekit: (process.env.IMAGEKIT_PRIVATE_KEY ?? "").length > 0,
     buildTime: process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+    fsTest,
   });
 }
