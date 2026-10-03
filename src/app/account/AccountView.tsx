@@ -8,6 +8,7 @@ import { doc, setDoc, getDoc, collection, query, where, orderBy, limit, getDocs,
 import { clientAuth, clientDb } from "@/lib/firebase-client";
 import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
+import { uploadWithProgress } from "@/lib/upload-client";
 import AddressBook from "./AddressBook";
 
 type Order = {
@@ -35,6 +36,7 @@ export default function AccountView() {
   const [savedTick, setSavedTick] = useState(false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [upPct, setUpPct] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [reviews, setReviews] = useState<Review[] | null>(null);
@@ -96,18 +98,19 @@ export default function AccountView() {
       return;
     }
     setUploading(true);
+    setUpPct(0);
     try {
       const token = await user.getIdToken();
       const fd = new FormData();
       fd.append("file", f);
-      const res = await fetch("/api/upload-avatar", {
-        method: "POST",
-        headers: { authorization: `Bearer ${token}` },
-        body: fd,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(String(data.error ?? "upload"));
-      const url = String(data.url);
+      const data = (await uploadWithProgress(
+        "/api/upload-avatar",
+        fd,
+        setUpPct,
+        { authorization: `Bearer ${token}` }
+      )) as { url?: string; error?: string };
+      const url = String(data.url ?? "");
+      if (!url) throw new Error(String(data.error ?? "upload"));
       if (clientAuth.currentUser) await updateProfile(clientAuth.currentUser, { photoURL: url });
       await setDoc(doc(clientDb, "users", user.uid), { photo: url, updated_at: new Date().toISOString() }, { merge: true });
       setPhoto(url);
@@ -143,9 +146,14 @@ export default function AccountView() {
             <span className="absolute inset-0 bg-black/45 text-white hidden group-hover:grid place-items-center">
               <Camera size={22} />
             </span>
-            {uploading && <span className="absolute inset-0 bg-black/45 text-white grid place-items-center text-sm font-bold">...</span>}
+            {uploading && <span className="absolute inset-0 bg-black/45 text-white grid place-items-center text-sm font-bold">{upPct}%</span>}
           </button>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { onPhoto(e.target.files?.[0]); e.target.value = ""; }} />
+          {uploading && (
+            <span className="block w-24 h-1.5 rounded-full bg-line overflow-hidden mx-auto mt-2" aria-hidden>
+              <span className="block h-full bg-clay rounded-full transition-all" style={{ width: `${upPct}%` }} />
+            </span>
+          )}
           <p className="text-[15px] text-muted mt-1.5">{t.tapToChange}</p>
           <button
             onClick={() => { navigator.clipboard?.writeText(userId).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
