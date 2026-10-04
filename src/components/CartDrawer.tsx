@@ -213,7 +213,14 @@ export default function CartDrawer() {
             </div>
           ) : needLogin && !user ? (
             <>
-              <div className="rounded-2xl border border-gold/50 bg-gold-soft/50 p-4 mt-2.5 text-center">
+              <div className="rounded-2xl border border-gold/50 bg-gold-soft/50 p-4 mt-2.5 text-center relative">
+                <button
+                  onClick={() => setNeedLogin(false)}
+                  aria-label="Dismiss"
+                  className="absolute top-2 right-2 w-8 h-8 grid place-items-center rounded-full border border-line bg-paper"
+                >
+                  <X size={14} />
+                </button>
                 <span className="mx-auto w-11 h-11 rounded-full bg-forest text-gold grid place-items-center">
                   <UserRound size={20} />
                 </span>
