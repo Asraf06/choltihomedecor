@@ -28,6 +28,7 @@ type Row = {
   sub_bn: string; sub_en: string; eyebrow_bn: string; eyebrow_en: string;
   cta_bn: string; cta_en: string; link: string; image: string;
   theme: string; badge_bn: string; badge_en: string;
+  layout: string; bg: string;
   starts_at: string | null; ends_at: string | null;
 };
 
@@ -49,6 +50,8 @@ function toSlide(id: string, r: Row): BannerSlide {
     cta: { bn: r.cta_bn, en: r.cta_en },
     link: r.link,
     theme: r.theme === "forest" || r.theme === "cocoa" ? r.theme : "clay",
+    layout: r.layout === "image" ? "image" : "full",
+    bg: typeof r.bg === "string" && /^#[0-9a-fA-F]{6}$/.test(r.bg) ? r.bg : "",
   };
 }
 

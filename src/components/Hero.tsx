@@ -38,6 +38,27 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
         >
           {slides.map((s, i) => {
             const th = THEMES[s.theme];
+            if (s.layout === "image") {
+              const inner = (
+                <div className="absolute inset-0" style={{ background: s.bg || "#07382f" }}>
+                  <Image src={s.img} alt={s.alt} fill className="object-contain" sizes="100vw" priority={i === 0} />
+                </div>
+              );
+              return (
+                <div key={s.id} className={`absolute inset-0 transition-opacity duration-500 ${i === safeIdx ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                  {s.link ? (
+                    <a
+                      href={s.link}
+                      aria-label={s.alt}
+                      {...(s.link.startsWith("#") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                      className="absolute inset-0"
+                    >
+                      {inner}
+                    </a>
+                  ) : inner}
+                </div>
+              );
+            }
             return (
               <div key={s.id} className={`absolute inset-0 transition-opacity duration-500 ${i === safeIdx ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                 <div className={`absolute inset-0 bg-gradient-to-r ${th.panel}`} />

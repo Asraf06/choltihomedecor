@@ -16,6 +16,8 @@ export type BannerSlide = {
   cta: { bn: string; en: string };
   link: string;
   theme: "clay" | "forest" | "cocoa";
+  layout: "full" | "image";
+  bg: string;
 };
 
 const U = (id: string, w = 900) =>
@@ -36,6 +38,8 @@ export const BANNER_SLIDES: BannerSlide[] = [
     cta: { bn: "অফারটি নিন", en: "Grab the offer" },
     link: "#products",
     theme: "clay",
+    layout: "full",
+    bg: "",
   },
   {
     id: "bedsheet",
@@ -51,6 +55,8 @@ export const BANNER_SLIDES: BannerSlide[] = [
     cta: { bn: "কালেকশন দেখুন", en: "View collection" },
     link: "#products",
     theme: "forest",
+    layout: "full",
+    bg: "",
   },
   {
     id: "cod",
@@ -66,5 +72,7 @@ export const BANNER_SLIDES: BannerSlide[] = [
     cta: { bn: "এখনই অর্ডার করুন", en: "Order now" },
     link: "https://wa.me/8801711387707",
     theme: "cocoa",
+    layout: "full",
+    bg: "",
   },
 ];
