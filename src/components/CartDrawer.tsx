@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X, MessageCircle, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, MessageCircle, ShoppingBag, UserRound } from "lucide-react";
 import Image from "next/image";
 import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
@@ -14,6 +15,7 @@ import { CheckoutSchema, buildOrderMessage, waOrderLink } from "@/lib/whatsapp";
 export default function CartDrawer() {
   const { t } = useLang();
   const { user } = useAuth();
+  const router = useRouter();
   const { cart, updateQty, removeItem, clearCart, cartOpen, setCartOpen } = useShop();
   const settings = useSettings();
   const [name, setName] = useState("");
@@ -23,10 +25,15 @@ export default function CartDrawer() {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [placedId, setPlacedId] = useState<string | null>(null);
+  const [needLogin, setNeedLogin] = useState(false);
 
   useEffect(() => {
     if (cart.length) setPlacedId(null);
   }, [cart.length]);
+
+  useEffect(() => {
+    if (user) setNeedLogin(false);
+  }, [user]);
 
   const { sub, del, total } = useMemo(() => {
     const s = cart.reduce((a, c) => a + c.now * c.qty, 0);
@@ -132,6 +139,10 @@ export default function CartDrawer() {
   };
 
   const orderNow = async () => {
+    if (!user) {
+      setNeedLogin(true);
+      return;
+    }
     const parsed = CheckoutSchema.safeParse({ name, phone, address, area });
     if (!parsed.success) {
       setErr(parsed.error.issues[0]?.message ?? "Form thik koro");
@@ -200,6 +211,23 @@ export default function CartDrawer() {
               <p className="text-[14px] text-muted mt-1">{t.orderIdLabel}: <code className="font-bold">{placedId.slice(0, 8).toUpperCase()}</code></p>
               <button onClick={() => { setPlacedId(null); setCartOpen(false); }} className="mt-2.5 inline-flex bg-forest text-white rounded-[35px] px-6 py-2 text-[16px] font-bold">{t.shop}</button>
             </div>
+          ) : needLogin && !user ? (
+            <>
+              <div className="rounded-2xl border border-gold/50 bg-gold-soft/50 p-4 mt-2.5 text-center">
+                <span className="mx-auto w-11 h-11 rounded-full bg-forest text-gold grid place-items-center">
+                  <UserRound size={20} />
+                </span>
+                <b className="text-[18px] block mt-2">{t.needLoginTitle}</b>
+                <p className="text-[15px] text-muted mt-1">{t.needLoginSub}</p>
+                <button
+                  onClick={() => { setCartOpen(false); router.push("/login"); }}
+                  className="mt-2.5 w-full inline-flex justify-center items-center gap-2 bg-clay text-white rounded-[35px] py-3 text-[17px] font-bold hover:bg-clay-dark"
+                >
+                  {t.needLoginBtn}
+                </button>
+              </div>
+              <button onClick={confirm} className="w-full inline-flex justify-center items-center gap-2 bg-paper border border-line rounded-[35px] px-4 py-2.5 text-[16px] font-bold mt-2"><MessageCircle size={14} />{t.confirm}</button>
+            </>
           ) : (
             <>
               <button onClick={orderNow} disabled={busy || !cart.length} className="w-full inline-flex justify-center items-center gap-2 bg-forest text-white rounded-[35px] py-3 text-[17px] font-bold mt-2.5 hover:opacity-90 disabled:opacity-50"><ShoppingBag size={15} />{busy ? "..." : t.orderNow}</button>
