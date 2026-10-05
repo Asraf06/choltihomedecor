@@ -55,6 +55,7 @@ function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
     img: imgs[0],
     imgs,
     badge: v.badge ? String(v.badge) : undefined,
+    description: String(v.description ?? ""),
     fabricIds: strArr(v.fabricIds),
     sizeIds: strArr(v.sizeIds),
     colorIds: strArr(v.colorIds),

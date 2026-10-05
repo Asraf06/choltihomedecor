@@ -18,6 +18,7 @@ export type Product = {
   img: string;
   imgs: string[];
   badge?: string;
+  description?: string;
   fabricIds?: string[];
   sizeIds?: string[];
   colorIds?: string[];

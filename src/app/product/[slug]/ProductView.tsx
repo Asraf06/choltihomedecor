@@ -71,7 +71,7 @@ export default function ProductView({ product, related, categories, fabrics, siz
             </div>
           </div>
         </div>
-        <ProductReviews slug={p.slug} productName={p.name} />
+        <ProductTabs description={p.description ?? ""} slug={p.slug} productName={p.name} />
         <h2 className="font-serif text-2xl my-3.5">{t.alsoLove} <span className="italic-accent">{t.love}</span></h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-10">
           {related.map((r) => (
@@ -83,5 +83,40 @@ export default function ProductView({ product, related, categories, fabrics, siz
       <FloatingWA />
       <CartDrawer />
     </>
+  );
+}
+
+function ProductTabs({ description, slug, productName }: { description: string; slug: string; productName: string }) {
+  const { t } = useLang();
+  const [tab, setTab] = useState<"desc" | "rev">("desc");
+  return (
+    <section className="my-6 max-w-3xl">
+      <div className="flex gap-2 border-b border-line">
+        {(["desc", "rev"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            className={`px-5 py-2.5 text-[17px] font-bold -mb-px border-b-2 ${tab === k ? "border-clay text-clay" : "border-transparent text-muted"}`}
+          >
+            {k === "desc" ? t.descriptionTab : t.reviewsTab}
+          </button>
+        ))}
+      </div>
+      <div className="py-4">
+        {tab === "desc" ? (
+          description ? (
+            <div className="flex flex-col gap-2.5">
+              {description.split(/\n+/).map((para, i) => (
+                <p key={i} className="text-[17px] leading-relaxed">{para}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[16px] text-muted">{t.noDescription}</p>
+          )
+        ) : (
+          <ProductReviews slug={slug} productName={productName} />
+        )}
+      </div>
+    </section>
   );
 }
