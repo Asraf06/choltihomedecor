@@ -105,9 +105,28 @@ export default function ProductReviews({ slug, productName, onCount }: { slug: s
       ) : canReview === null ? (
         <p className="text-[16px] text-muted">...</p>
       ) : !canReview ? (
-        <div className="bg-paper border border-line rounded-[16px] p-4 text-[16px]">
-          <b className="inline-flex items-center gap-1.5 text-[16px] mb-1"><Star size={16} className="text-gold" fill="currentColor" />{t.writeReview}</b>
-          <span className="text-muted">{t.orderFirst}</span>
+        <div className="bg-paper border border-line rounded-[16px] p-4">
+          <b className="text-[17px]">{t.writeReview}</b>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-[15px] font-bold">{t.yourRating}:</span>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button key={n} onClick={() => { setRating(n); setErr(null); }} aria-label={`${n} star`} className={n <= rating ? "text-gold" : "text-line"}>
+                <Star size={24} fill="currentColor" />
+              </button>
+            ))}
+          </div>
+          <textarea
+            value={text}
+            onChange={(e) => { setText(e.target.value); if (err) setErr(null); }}
+            maxLength={600}
+            rows={3}
+            placeholder={t.yourReview}
+            className="mt-2.5 w-full border border-line bg-sand rounded-xl p-3 text-[16px] outline-none"
+          />
+          {err && <p className="text-[15px] font-bold text-clay mt-1.5">{err}</p>}
+          <button disabled={!text.trim()} onClick={() => setErr(t.orderFirst)} className="mt-2.5 inline-flex bg-clay text-white rounded-[35px] px-6 py-2.5 text-[16px] font-bold hover:bg-clay-dark disabled:opacity-50">
+            {t.submitReview}
+          </button>
         </div>
       ) : done ? (
         <p className="text-[16px] font-bold text-forest">{t.reviewThanks}</p>
