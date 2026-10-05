@@ -85,7 +85,11 @@ export default function ProductReviews({ slug, productName, onCount }: { slug: s
             <div key={r.id} className="bg-paper border border-line rounded-[16px] p-4">
               <div className="flex items-center gap-2">
                 <b className="text-[16px]">{r.user_name}</b>
-                <span className="text-gold text-[15px]">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                <span className="inline-flex items-center gap-0.5" aria-label={`${r.rating} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star key={n} size={15} className={n <= r.rating ? "text-gold" : "text-line"} fill="currentColor" />
+                  ))}
+                </span>
                 <small className="text-muted text-[14px] ml-auto">{String(r.created_at).slice(0, 10)}</small>
               </div>
               <p className="text-[16px] mt-1">{r.text}</p>
@@ -102,7 +106,7 @@ export default function ProductReviews({ slug, productName, onCount }: { slug: s
         <p className="text-[16px] text-muted">...</p>
       ) : !canReview ? (
         <div className="bg-paper border border-line rounded-[16px] p-4 text-[16px]">
-          <b className="block text-[16px] mb-1">⭐ {t.writeReview}</b>
+          <b className="inline-flex items-center gap-1.5 text-[16px] mb-1"><Star size={16} className="text-gold" fill="currentColor" />{t.writeReview}</b>
           <span className="text-muted">{t.orderFirst}</span>
         </div>
       ) : done ? (
