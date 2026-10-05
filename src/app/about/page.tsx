@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
-import { Story } from "@/components/Story";
+import { AboutText } from "@/components/Brand";
 import { CTA, Footer, FloatingWA } from "@/components/Closing";
 import CartDrawer from "@/components/CartDrawer";
 import { getCategories } from "@/lib/catalog-db";
+import { getAbout } from "@/lib/content-db";
 
 export const metadata: Metadata = {
   title: "About Us - Cholti Home Decor",
@@ -11,10 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
+  const [categories, about] = await Promise.all([getCategories(), getAbout()]);
   return (
     <>
-      <Header categories={await getCategories()} />
-      <Story />
+      <Header categories={categories} />
+      <AboutText initial={about} />
       <CTA />
       <Footer />
       <FloatingWA />
