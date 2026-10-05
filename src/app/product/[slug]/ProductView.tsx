@@ -19,12 +19,15 @@ export default function ProductView({ product, related, categories, fabrics, siz
   const { t } = useLang();
   const p = product;
   const { addToCart, setCartOpen } = useShop();
-  const fabricOpts = fabrics?.length ? fabrics.map((f) => f.name) : FABRICS;
-  const sizeOpts = sizes?.length ? sizes.map((s) => s.name) : ["5-seater"];
-  const colorOpts = colors?.length ? colors : [{ id: "terracotta", name: "Terracotta", hex: "#BC4621" }];
-  const [fabric, setFabric] = useState(fabricOpts[0]);
-  const [size, setSize] = useState(sizeOpts[0]);
-  const [color, setColor] = useState(colorOpts[0].name);
+  const fabricOpts = (fabrics?.length ? fabrics.filter((f) => !p.fabricIds?.length || p.fabricIds.includes(f.id)) : []).map((f) => f.name);
+  const sizeOpts = (sizes?.length ? sizes.filter((s) => !p.sizeIds?.length || p.sizeIds.includes(s.id)) : []).map((s) => s.name);
+  const colorOpts = colors?.length ? colors.filter((c) => !p.colorIds?.length || p.colorIds.includes(c.id)) : [];
+  const fabricNames = fabricOpts.length ? fabricOpts : FABRICS;
+  const sizeNames = sizeOpts.length ? sizeOpts : ["5-seater"];
+  const colorList = colorOpts.length ? colorOpts : [{ id: "terracotta", name: "Terracotta", hex: "#BC4621" }];
+  const [fabric, setFabric] = useState(fabricNames[0]);
+  const [size, setSize] = useState(sizeNames[0]);
+  const [color, setColor] = useState(colorList[0].name);
   const [qty, setQty] = useState(1);
   const [img, setImg] = useState(0);
 
@@ -51,9 +54,9 @@ export default function ProductView({ product, related, categories, fabrics, siz
             <h1 className="font-serif text-[30px] my-2">{p.name}</h1>
             <div className="text-[17px] text-muted"><span className="stars">★★★★★</span> {p.rating}</div>
             <div className="flex gap-2.5 items-center my-3"><span className="line-through text-muted">৳{p.old.toLocaleString()}</span><b className="text-[26px] text-clay">৳{p.now.toLocaleString()}</b><span className="bg-clay-light text-clay dark:bg-clay dark:text-white rounded-full px-2.5 py-1 text-base font-extrabold">Save ৳{(p.old - p.now).toLocaleString()}</span></div>
-            <div><b className="text-base">{t.fabric}</b><div className="flex gap-2 flex-wrap my-2">{fabricOpts.map((f) => <button key={f} onClick={() => setFabric(f)} className={`border rounded-full px-3.5 py-2 text-base font-bold ${f === fabric ? "border-clay bg-clay-light text-clay dark:bg-clay dark:text-white" : "border-line bg-paper"}`}>{f}{f === fabric ? " ✓" : ""}</button>)}</div></div>
-            <div><b className="text-base">{t.size}</b><div className="flex gap-2 flex-wrap my-2">{sizeOpts.map((s) => <button key={s} onClick={() => setSize(s)} className={`border rounded-full px-3.5 py-2 text-base font-bold ${s === size ? "border-clay bg-clay-light text-clay dark:bg-clay dark:text-white" : "border-line bg-paper"}`}>{s}</button>)}</div></div>
-            <div><b className="text-base">{t.color}</b><div className="flex gap-2 my-2">{colorOpts.map(({ id, name: n, hex: c }) => <button key={id} title={n} onClick={() => setColor(n)} className={`w-8 h-8 rounded-full border-2 border-white ${n === color ? "outline outline-2 outline-gold" : "outline outline-1 outline-line"}`} style={{ background: c }} />)}</div></div>
+            <div><b className="text-base">{t.fabric}</b><div className="flex gap-2 flex-wrap my-2">{fabricNames.map((f) => <button key={f} onClick={() => setFabric(f)} className={`border rounded-full px-3.5 py-2 text-base font-bold ${f === fabric ? "border-clay bg-clay-light text-clay dark:bg-clay dark:text-white" : "border-line bg-paper"}`}>{f}{f === fabric ? " ✓" : ""}</button>)}</div></div>
+            <div><b className="text-base">{t.size}</b><div className="flex gap-2 flex-wrap my-2">{sizeNames.map((s) => <button key={s} onClick={() => setSize(s)} className={`border rounded-full px-3.5 py-2 text-base font-bold ${s === size ? "border-clay bg-clay-light text-clay dark:bg-clay dark:text-white" : "border-line bg-paper"}`}>{s}</button>)}</div></div>
+            <div><b className="text-base">{t.color}</b><div className="flex gap-2 my-2">{colorList.map(({ id, name: n, hex: c }) => <button key={id} title={n} onClick={() => setColor(n)} className={`w-8 h-8 rounded-full border-2 border-white ${n === color ? "outline outline-2 outline-gold" : "outline outline-1 outline-line"}`} style={{ background: c }} />)}</div></div>
             <div className="flex gap-3 items-center my-3.5">
               <span className="flex items-center gap-2 border border-line rounded-full px-2 py-1"><button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-[26px] h-[26px] rounded-full bg-sand border border-line">−</button><b>{qty}</b><button onClick={() => setQty((q) => Math.min(99, q + 1))} className="w-[26px] h-[26px] rounded-full bg-sand border border-line">+</button></span>
               <b className="text-clay">Total: {(p.now * qty).toLocaleString()}৳</b>

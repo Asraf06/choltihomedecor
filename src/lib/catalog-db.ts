@@ -34,6 +34,10 @@ const absolutize = (src: string) => (src.startsWith("/uploads/") ? `${UPLOADS_BA
 const DEFAULT_CAT_IMG =
   "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80&auto=format&fit=crop";
 
+function strArr(v: unknown): string[] {
+  return Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === "string") : [];
+}
+
 function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
   const rawImgs = Array.isArray(v.imgs) && v.imgs.length ? v.imgs : [String(v.img ?? "")];
   const imgs = (rawImgs as string[]).map((s) => (s.trim() ? absolutize(s.trim()) : DEFAULT_CAT_IMG.replace("w=400", "w=800")));
@@ -51,6 +55,9 @@ function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
     img: imgs[0],
     imgs,
     badge: v.badge ? String(v.badge) : undefined,
+    fabricIds: strArr(v.fabricIds),
+    sizeIds: strArr(v.sizeIds),
+    colorIds: strArr(v.colorIds),
   };
 }
 
