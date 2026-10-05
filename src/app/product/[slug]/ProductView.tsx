@@ -89,16 +89,19 @@ export default function ProductView({ product, related, categories, fabrics, siz
 function ProductTabs({ description, slug, productName }: { description: string; slug: string; productName: string }) {
   const { t } = useLang();
   const [tab, setTab] = useState<"desc" | "rev">("desc");
+  const [revCount, setRevCount] = useState<number | null>(null);
   return (
     <section className="my-6 max-w-3xl">
-      <div className="flex gap-2 border-b border-line">
+      <div className="flex gap-2 border-b border-line" role="tablist">
         {(["desc", "rev"] as const).map((k) => (
           <button
             key={k}
+            role="tab"
+            aria-selected={tab === k}
             onClick={() => setTab(k)}
             className={`px-5 py-2.5 text-[17px] font-bold -mb-px border-b-2 ${tab === k ? "border-clay text-clay" : "border-transparent text-muted"}`}
           >
-            {k === "desc" ? t.descriptionTab : t.reviewsTab}
+            {k === "desc" ? t.descriptionTab : `${t.reviewsTab}${revCount ? ` (${revCount})` : ""}`}
           </button>
         ))}
       </div>
@@ -114,7 +117,7 @@ function ProductTabs({ description, slug, productName }: { description: string; 
             <p className="text-[16px] text-muted">{t.noDescription}</p>
           )
         ) : (
-          <ProductReviews slug={slug} productName={productName} />
+          <ProductReviews slug={slug} productName={productName} onCount={setRevCount} />
         )}
       </div>
     </section>

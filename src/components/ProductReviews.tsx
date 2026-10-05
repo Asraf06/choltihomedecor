@@ -10,7 +10,7 @@ import { useLang } from "@/lib/lang";
 
 type Review = { id: string; user_name: string; rating: number; text: string; created_at: string; approved?: boolean };
 
-export default function ProductReviews({ slug, productName }: { slug: string; productName: string }) {
+export default function ProductReviews({ slug, productName, onCount }: { slug: string; productName: string; onCount?: (n: number) => void }) {
   const { t } = useLang();
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[] | null>(null);
@@ -23,15 +23,15 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
 
   useEffect(() => {
     getDocs(query(collection(clientDb, "product_reviews"), where("product_slug", "==", slug), limit(20)))
-      .then((s) =>
-        setReviews(
-          s.docs
-            .map((d) => ({ id: d.id, ...(d.data() as object) }) as Review)
-            .filter((r) => r.approved !== false)
-            .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
-        )
-      )
-      .catch(() => setReviews([]));
+      .then((s) => {
+        const list = s.docs
+          .map((d) => ({ id: d.id, ...(d.data() as object) }) as Review)
+          .filter((r) => r.approved !== false)
+          .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+        setReviews(list);
+        onCount?.(list.length);
+      })
+      .catch(() => { setReviews([]); onCount?.(0); });
   }, [slug]);
 
   useEffect(() => {
@@ -94,14 +94,17 @@ export default function ProductReviews({ slug, productName }: { slug: string; pr
         </div>
       )}
       {!user ? (
-        <p className="text-[16px] text-muted">
+        <div className="bg-paper border border-line rounded-[16px] p-4 text-[16px]">
           {t.signInToReview}{" "}
           <Link href="/login" className="font-bold text-clay underline">{t.signIn}</Link>
-        </p>
+        </div>
       ) : canReview === null ? (
         <p className="text-[16px] text-muted">...</p>
       ) : !canReview ? (
-        <p className="text-[16px] text-muted">{t.orderFirst}</p>
+        <div className="bg-paper border border-line rounded-[16px] p-4 text-[16px]">
+          <b className="block text-[16px] mb-1">⭐ {t.writeReview}</b>
+          <span className="text-muted">{t.orderFirst}</span>
+        </div>
       ) : done ? (
         <p className="text-[16px] font-bold text-forest">{t.reviewThanks}</p>
       ) : (
