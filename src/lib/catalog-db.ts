@@ -56,9 +56,10 @@ function toProduct(id: string, v: FirebaseFirestore.DocumentData): Product {
     imgs,
     badge: v.badge ? String(v.badge) : undefined,
     description: String(v.description ?? ""),
-    fabricIds: strArr(v.fabricIds),
-    sizeIds: strArr(v.sizeIds),
-    colorIds: strArr(v.colorIds),
+    // undefined (field missing on old docs) = show all; [] = hide section on shop
+    fabricIds: Array.isArray(v.fabricIds) ? strArr(v.fabricIds) : undefined,
+    sizeIds: Array.isArray(v.sizeIds) ? strArr(v.sizeIds) : undefined,
+    colorIds: Array.isArray(v.colorIds) ? strArr(v.colorIds) : undefined,
   };
 }
 
