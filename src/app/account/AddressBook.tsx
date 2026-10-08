@@ -6,20 +6,34 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { clientDb } from "@/lib/firebase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useLang } from "@/lib/lang";
+import { useSettings, zoneLabel } from "@/lib/settings-context";
 
 export type SavedAddress = {
   id: string;
   name: string;
   phone: string;
   address: string;
-  area: "80" | "130";
+  area: string;
 };
 
-const EMPTY: SavedAddress = { id: "", name: "", phone: "", address: "", area: "80" };
+const EMPTY: SavedAddress = { id: "", name: "", phone: "", address: "", area: "inside-dhaka" };
 
 export default function AddressBook() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuth();
+  const settings = useSettings();
+  const zones = settings.zones?.length ? settings.zones : [];
+
+  // Legacy addresses store "80"/"130" charges instead of zone ids.
+  const zoneId = (area: string) =>
+    zones.some((z) => z.id === area) ? area : zones.find((z) => String(z.charge) === area)?.id ?? zones[0]?.id ?? area;
+  const zoneName = (area: string) => {
+    const z = zones.find((x) => x.id === area);
+    if (z) return zoneLabel(z, lang);
+    if (area === "80") return t.dhakaInside;
+    if (area === "130") return t.dhakaOutside;
+    return area;
+  };
   const [list, setList] = useState<SavedAddress[] | null>(null);
   const [def, setDef] = useState("");
   const [editing, setEditing] = useState<SavedAddress | null>(null);
@@ -56,7 +70,7 @@ export default function AddressBook() {
       name: editing.name.trim().slice(0, 60),
       phone: editing.phone.trim(),
       address: editing.address.trim().slice(0, 300),
-      area: editing.area,
+      area: zoneId(editing.area),
     };
     if (v.name.length < 3 || !/^01[3-9]\d{8}$/.test(v.phone) || v.address.length < 10) {
       setErr(t.uploadFailed);
@@ -106,7 +120,7 @@ export default function AddressBook() {
                 <span className="text-[15px] text-muted">{a.phone}</span>
                 {def === a.id && <span className="ml-auto text-[13px] font-extrabold bg-forest text-white rounded-full px-2 py-0.5">{t.defaultBadge}</span>}
               </div>
-              <p className="text-[15px] text-muted mt-1">{a.address} • {a.area === "80" ? t.dhakaInside : t.dhakaOutside}</p>
+              <p className="text-[15px] text-muted mt-1">{a.address} • {zoneName(a.area)}</p>
               <div className="flex gap-3 mt-2">
                 {def !== a.id && (
                   <button onClick={() => useAsDefault(a.id)} className="text-[14px] font-bold text-clay inline-flex items-center gap-1">
@@ -142,9 +156,8 @@ export default function AddressBook() {
             <textarea value={editing.address} onChange={(e) => setEditing({ ...editing, address: e.target.value })} rows={2} maxLength={300} className="mt-1 w-full border border-line bg-paper rounded-xl p-2.5 text-lg font-normal outline-none" />
           </label>
           <label className="text-base font-bold">{t.deliveryArea}
-            <select value={editing.area} onChange={(e) => setEditing({ ...editing, area: e.target.value as "80" | "130" })} className="mt-1 w-full h-[42px] border border-line bg-paper rounded-xl px-3.5 text-lg">
-              <option value="80">{t.dhakaInside}</option>
-              <option value="130">{t.dhakaOutside}</option>
+            <select value={zoneId(editing.area)} onChange={(e) => setEditing({ ...editing, area: e.target.value })} className="mt-1 w-full h-[42px] border border-line bg-paper rounded-xl px-3.5 text-lg">
+              {zones.map((z) => <option key={z.id} value={z.id}>{zoneLabel(z, lang)}</option>)}
             </select>
           </label>
           <div className="flex gap-2">

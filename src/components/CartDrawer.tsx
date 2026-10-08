@@ -9,11 +9,11 @@ import { clientDb } from "@/lib/firebase-client";
 import { useAuth, publicUserId } from "@/lib/auth-context";
 import { useShop } from "@/lib/store";
 import { useLang } from "@/lib/lang";
-import { useSettings } from "@/lib/settings-context";
+import { useSettings, zoneLabel } from "@/lib/settings-context";
 import { CheckoutSchema, buildOrderMessage, waOrderLink } from "@/lib/whatsapp";
 
 export default function CartDrawer() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuth();
   const router = useRouter();
   const { cart, updateQty, removeItem, clearCart, cartOpen, setCartOpen } = useShop();
@@ -21,7 +21,7 @@ export default function CartDrawer() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [area, setArea] = useState<"80" | "130">("80");
+  const [area, setArea] = useState("inside-dhaka");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [placedId, setPlacedId] = useState<string | null>(null);
@@ -35,11 +35,14 @@ export default function CartDrawer() {
     if (user) setNeedLogin(false);
   }, [user]);
 
+  const zones = settings.zones?.length ? settings.zones : [];
+  const zone = zones.find((z) => z.id === area) ?? zones[0];
+
   const { sub, del, total } = useMemo(() => {
     const s = cart.reduce((a, c) => a + c.now * c.qty, 0);
-    const d = cart.length ? Number(area) : 0;
+    const d = cart.length && zone ? zone.charge : 0;
     return { sub: s, del: d, total: s + d };
-  }, [cart, area]);
+  }, [cart, zone]);
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -72,13 +75,17 @@ export default function CartDrawer() {
         if (fillName && pick.name) setName(String(pick.name));
         if (fillPhone && pick.phone) setPhone(String(pick.phone));
         if (fillAddr && pick.address) setAddress(String(pick.address));
-        if (pick.area === "80" || pick.area === "130") setArea(pick.area);
+        // Saved addresses may hold a zone id, or a legacy "80"/"130" charge.
+        if (typeof pick.area === "string" && pick.area) {
+          const z = zones.find((x) => x.id === pick.area) ?? zones.find((x) => String(x.charge) === pick.area) ?? zones[0];
+          if (z) setArea(z.id);
+        }
       })
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, [cartOpen, user]);
+  }, [cartOpen, user, zones]);
 
   const saveOrder = async (parsed: { name: string; phone: string; address: string }) => {
     const at = new Date().toISOString();
@@ -93,6 +100,7 @@ export default function CartDrawer() {
       phone: parsed.phone,
       address: parsed.address,
       area,
+      area_label: zone ? zoneLabel(zone, lang) : "",
       uid: user?.uid ?? "",
       email: user?.email ?? "",
       user_id: user ? publicUserId(user.uid) : "",
@@ -133,7 +141,7 @@ export default function CartDrawer() {
       return;
     }
     setErr(null);
-    const msg = buildOrderMessage(cart, parsed.data, sub, del, total);
+    const msg = buildOrderMessage(cart, parsed.data, sub, del, total, zone ? zoneLabel(zone, lang) : "");
     clearCart();
     window.open(waOrderLink(settings.wa_number, msg), "_blank", "noopener,noreferrer");
   };
@@ -197,7 +205,7 @@ export default function CartDrawer() {
           <div><label className="text-base font-bold block mb-1.5">{t.name}</label><input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Fatema Akter" maxLength={60} className="w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-lg outline-none" /></div>
           <div><label className="text-base font-bold block mb-1.5">{t.phone}</label><input value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, "").slice(0, 11))} placeholder="01XXXXXXXXX" inputMode="numeric" className="w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-lg outline-none" /></div>
           <div><label className="text-base font-bold block mb-1.5">{t.address}</label><textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} maxLength={300} placeholder="Basa, road, area, thana, zilla" className="w-full border border-line bg-sand rounded-xl p-2.5 text-lg outline-none" /></div>
-          <div><label className="text-base font-bold block mb-1.5">{t.delivery}</label><select value={area} onChange={(e) => setArea(e.target.value as "80" | "130")} className="w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-lg"><option value="80">{t.dhakaIn}</option><option value="130">{t.dhakaOut}</option></select></div>
+          <div><label className="text-base font-bold block mb-1.5">{t.delivery}</label><select value={zone?.id ?? ""} onChange={(e) => setArea(e.target.value)} className="w-full h-[42px] border border-line bg-sand rounded-xl px-3.5 text-lg">{zones.map((z) => <option key={z.id} value={z.id}>{zoneLabel(z, lang)}</option>)}</select></div>
           {err && <p className="text-[17px] text-clay font-bold">{err}</p>}
         </div>
         <div className="p-[18px] border-t border-line">
