@@ -81,10 +81,12 @@ body {
 .italic-accent { font-style: italic; color: var(--clay); }
 
 /* Mobile hero = exact scaled-down replica of the desktop hero.
-   200% width at 0.5 zoom lays out exactly 2x then shrinks to fit,
-   so composition, proportions and line breaks match desktop. */
+   Pure transform (works in every browser, unlike zoom): 200% width
+   scaled to 0.5 fits exactly. The frame crops layout space to the
+   scaled height (fixed 300px box -> 150px). */
 @media (max-width: 767px) {
-  .hero-zoom { width: 200%; zoom: 0.5; }
+  .hero-zoom-frame { height: 150px; overflow: hidden; }
+  .hero-zoom { width: 200%; transform: scale(0.5); transform-origin: top left; }
 }
 
 @keyframes tj-ripple {

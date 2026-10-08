@@ -31,6 +31,7 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
     ? "group relative rounded-3xl overflow-hidden border border-line h-[300px]"
     : "group relative overflow-hidden border-y border-line h-[300px]";
   const box = (
+    <div className="hero-zoom-frame">
     <div className="hero-zoom">
       <div
           className={boxCls}
@@ -109,6 +110,7 @@ function BannerHero({ slides, boxed }: { slides: BannerSlide[]; boxed?: boolean 
             ))}
           </div>
         </div>
+    </div>
     </div>
   );
 
