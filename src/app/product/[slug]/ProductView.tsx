@@ -19,14 +19,15 @@ export default function ProductView({ product, related, categories, fabrics, siz
   const { t } = useLang();
   const p = product;
   const { addToCart, setCartOpen } = useShop();
+  // fabrics/sizes/colors: undefined prop = data failed -> defaults; [] = disabled site-wide -> hide
   const fabricNames = p.fabricIds === undefined
-    ? (fabrics?.length ? fabrics.map((f) => f.name) : FABRICS)
+    ? (fabrics === undefined ? FABRICS : fabrics.map((f) => f.name))
     : (fabrics ?? []).filter((f) => p.fabricIds!.includes(f.id)).map((f) => f.name);
   const sizeNames = p.sizeIds === undefined
-    ? (sizes?.length ? sizes.map((s) => s.name) : ["5-seater"])
+    ? (sizes === undefined ? ["5-seater"] : sizes.map((s) => s.name))
     : (sizes ?? []).filter((s) => p.sizeIds!.includes(s.id)).map((s) => s.name);
   const colorList = p.colorIds === undefined
-    ? (colors?.length ? colors : [{ id: "terracotta", name: "Terracotta", hex: "#BC4621" }])
+    ? (colors === undefined ? [{ id: "terracotta", name: "Terracotta", hex: "#BC4621" }] : colors)
     : (colors ?? []).filter((c) => p.colorIds!.includes(c.id));
   const [fabric, setFabric] = useState(fabricNames[0] ?? "");
   const [size, setSize] = useState(sizeNames[0] ?? "");

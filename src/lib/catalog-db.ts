@@ -170,9 +170,21 @@ const FALLBACK_SIZES: Record<string, string[]> = {
   sofa: ["Single 3-seater", "5-seater", "7-seater"],
 };
 
+async function optionOn(kind: "fabrics" | "sizes" | "colors"): Promise<boolean> {
+  return ttlCache(`options:vis:${kind}`, 60_000, async () => {
+    try {
+      const snap = await fsdb().doc("config/options").get();
+      return (snap.data() ?? {})[kind] !== false;
+    } catch {
+      return true;
+    }
+  });
+}
+
 export async function getFabrics(): Promise<ShopFabric[]> {
   return ttlCache("fabrics", 60_000, async () => {
     try {
+      if (!(await optionOn("fabrics"))) return [];
       const docs = await activeDocs("fabrics");
       if (!docs.length) throw new Error("no fabrics");
       return docs
@@ -189,6 +201,7 @@ export async function getFabrics(): Promise<ShopFabric[]> {
 export async function getColors(): Promise<ShopColor[]> {
   return ttlCache("colors", 60_000, async () => {
     try {
+      if (!(await optionOn("colors"))) return [];
       const docs = await activeDocs("colors");
       if (!docs.length) throw new Error("no colors");
       return docs
@@ -208,6 +221,7 @@ export async function getColors(): Promise<ShopColor[]> {
 export async function getSizes(cat: string): Promise<ShopSize[]> {
   return ttlCache(`sizes:${cat}`, 60_000, async () => {
     try {
+      if (!(await optionOn("sizes"))) return [];
       const docs = await activeDocs("sizes");
       const all = docs
         .map((d) => ({
