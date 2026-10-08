@@ -80,6 +80,13 @@ body {
 .stars { color: var(--gold); letter-spacing: 2px; }
 .italic-accent { font-style: italic; color: var(--clay); }
 
+/* Mobile hero = exact scaled-down replica of the desktop hero.
+   200% width at 0.5 zoom lays out exactly 2x then shrinks to fit,
+   so composition, proportions and line breaks match desktop. */
+@media (max-width: 767px) {
+  .hero-zoom { width: 200%; zoom: 0.5; }
+}
+
 @keyframes tj-ripple {
   0% { transform: scale(0.9); opacity: 0.6; }
   100% { transform: scale(1.25); opacity: 0; }
