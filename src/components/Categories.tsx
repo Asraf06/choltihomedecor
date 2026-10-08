@@ -9,7 +9,7 @@ export default function Categories({ initial }: { initial?: ShopCategory[] }) {
   const { t } = useLang();
   const list = initial?.length ? initial : (CATEGORIES as ShopCategory[]);
   return (
-    <section className="bg-paper border-b border-line pt-[32px] pb-[64px]">
+    <section className="bg-paper border-b border-line pt-6 md:pt-[32px] pb-10 md:pb-[64px]">
       <div className="max-w-[1180px] mx-auto px-5">
         <div className="flex flex-wrap items-end justify-between gap-2 mb-[6px]">
           <div><div className="eyebrow">{t.catEyebrow}</div><h2 className="font-serif text-[26px] md:text-[34px]">{t.catTitleA} <span className="italic-accent">{t.catTitleB}</span></h2><div className="gold-divider" /></div>

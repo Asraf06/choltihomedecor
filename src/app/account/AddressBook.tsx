@@ -105,7 +105,7 @@ export default function AddressBook() {
 
   return (
     <section className="bg-paper border border-line rounded-[20px] p-5">
-      <h2 className="font-serif text-2xl mb-1">{t.myAddresses}</h2>
+      <h2 className="font-serif text-xl md:text-2xl mb-1">{t.myAddresses}</h2>
       <p className="text-[15px] text-muted mb-3">{t.addressHint}</p>
       {err && <p className="text-[15px] font-bold text-clay mb-2">{err}</p>}
       {!list.length ? (

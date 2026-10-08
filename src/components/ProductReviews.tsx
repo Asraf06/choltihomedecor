@@ -74,7 +74,7 @@ export default function ProductReviews({ slug, productName, onCount }: { slug: s
 
   return (
     <section className="my-6 max-w-3xl">
-      <h2 className="font-serif text-2xl mb-3">{t.customerReviews}</h2>
+      <h2 className="font-serif text-xl md:text-2xl mb-3">{t.customerReviews}</h2>
       {!reviews ? (
         <p className="text-lg text-muted">...</p>
       ) : !reviews.length ? (

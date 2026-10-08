@@ -15,7 +15,7 @@ export function CTA() {
       <div className="max-w-[1180px] mx-auto px-5">
         <div className="rounded-[26px] p-[34px] flex justify-between items-center gap-5 flex-wrap relative overflow-hidden bg-gradient-to-br from-forest-deep to-forest-2">
           <span className="absolute right-5 -top-2.5 text-[80px] text-white/15">✦</span>
-          <div><h2 className="text-white text-2xl font-serif max-w-[520px]">{t.ctaTitle}</h2><p className="text-[#c8d7d2] text-base">{t.ctaSub}</p></div>
+          <div><h2 className="text-white text-xl md:text-2xl font-serif max-w-[520px]">{t.ctaTitle}</h2><p className="text-[#c8d7d2] text-base">{t.ctaSub}</p></div>
           <div className="flex gap-2.5 flex-wrap">
             <a href={waLink(settings)} target="_blank" rel="noopener noreferrer" className="bg-white text-forest rounded-[35px] px-5 py-3 text-[17px] font-extrabold inline-flex gap-2 items-center"><MessageCircle size={15} />WhatsApp {settings.hotline.replace(/\D/g, "").replace(/^880/, "0")}</a>
             <a href={telLink(settings)} className="bg-white text-forest rounded-[35px] px-5 py-3 text-[17px] font-extrabold inline-flex gap-2 items-center"><Phone size={15} />{t.callNow}</a>

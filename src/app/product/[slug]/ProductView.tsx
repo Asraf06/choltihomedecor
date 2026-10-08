@@ -56,9 +56,9 @@ export default function ProductView({ product, related, categories, fabrics, siz
           </div>
           <div className="min-w-0">
             <div className="eyebrow">{p.cat}</div>
-            <h1 className="font-serif text-[30px] my-2">{p.name}</h1>
+            <h1 className="font-serif text-[24px] md:text-[30px] my-2">{p.name}</h1>
             <div className="text-[17px] text-muted"><span className="stars">★★★★★</span> {p.rating}</div>
-            <div className="flex gap-2.5 items-center my-3"><span className="line-through text-muted">৳{p.old.toLocaleString()}</span><b className="text-[26px] text-clay">৳{p.now.toLocaleString()}</b><span className="bg-clay-light text-clay dark:bg-clay dark:text-white rounded-full px-2.5 py-1 text-base font-extrabold">Save ৳{(p.old - p.now).toLocaleString()}</span></div>
+            <div className="flex gap-2.5 items-center my-3"><span className="line-through text-muted">৳{p.old.toLocaleString()}</span><b className="text-[22px] md:text-[26px] text-clay">৳{p.now.toLocaleString()}</b><span className="bg-clay-light text-clay dark:bg-clay dark:text-white rounded-full px-2.5 py-1 text-sm md:text-base font-extrabold">Save ৳{(p.old - p.now).toLocaleString()}</span></div>
             {fabricNames.length > 0 && (
             <div><b className="text-base">{t.fabric}</b><div className="flex gap-2 flex-wrap my-2">{fabricNames.map((f) => <button key={f} onClick={() => setFabric(f)} className={`border rounded-full px-3.5 py-2 text-base font-bold ${f === fabric ? "border-clay bg-clay-light text-clay dark:bg-clay dark:text-white" : "border-line bg-paper"}`}>{f}{f === fabric ? " ✓" : ""}</button>)}</div></div>
             )}
@@ -83,7 +83,7 @@ export default function ProductView({ product, related, categories, fabrics, siz
           </div>
         </div>
         <ProductTabs description={p.description ?? ""} slug={p.slug} productName={p.name} />
-        <h2 className="font-serif text-2xl my-3.5">{t.alsoLove} <span className="italic-accent">{t.love}</span></h2>
+        <h2 className="font-serif text-xl md:text-2xl my-3.5">{t.alsoLove} <span className="italic-accent">{t.love}</span></h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-4 pb-10">
           {related.map((r) => (
             <ProductCard key={r.slug} product={r} />

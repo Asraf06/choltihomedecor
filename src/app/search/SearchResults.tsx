@@ -8,7 +8,7 @@ export default function SearchResults({ query, hits }: { query: string; hits: Pr
   const { t } = useLang();
   return (
     <>
-      <h1 className="font-serif text-3xl">
+      <h1 className="font-serif text-2xl md:text-3xl">
         {t.searchResults} “{query}” ({hits.length})
       </h1>
       <div className="gold-divider" />

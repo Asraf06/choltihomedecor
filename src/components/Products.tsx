@@ -13,11 +13,11 @@ export default function Products({ initial }: { initial?: Product[] }) {
   const featured = source.filter((p) => p.tags.includes("best")).slice(0, 4);
 
   return (
-    <section id="products" className="py-[64px] scroll-mt-[170px]">
+    <section id="products" className="py-10 md:py-[64px] scroll-mt-[170px]">
       <div className="max-w-[1180px] mx-auto px-5">
         <div className="text-center max-w-[640px] mx-auto mb-5">
           <div className="eyebrow">{t.prodEyebrow}</div>
-          <h2 className="font-serif text-4xl">{t.prodTitleA} <span className="italic-accent">{t.prodTitleB}</span></h2>
+          <h2 className="font-serif text-[27px] md:text-4xl">{t.prodTitleA} <span className="italic-accent">{t.prodTitleB}</span></h2>
           <div className="gold-divider center" />
           <p className="text-lg text-muted">{t.prodSub}</p>
         </div>

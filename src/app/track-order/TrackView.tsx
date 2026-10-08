@@ -73,7 +73,7 @@ export default function TrackView() {
       </div>
       {user && (
         <div className="mt-8">
-          <h2 className="font-serif text-2xl mb-3">
+          <h2 className="font-serif text-xl md:text-2xl mb-3">
             {lang === "bn" ? "আমার অর্ডার" : "My Orders"}
           </h2>
           {!orders ? (

@@ -212,7 +212,7 @@ export default function AccountView() {
         <div className="flex flex-col gap-5">
           <AddressBook />
           <section className="bg-paper border border-line rounded-[20px] p-5">
-            <h2 className="font-serif text-2xl mb-3">{t.myOrders}</h2>
+            <h2 className="font-serif text-xl md:text-2xl mb-3">{t.myOrders}</h2>
             {!orders ? (
               <p className="text-lg text-muted">...</p>
             ) : !orders.length ? (
@@ -235,7 +235,7 @@ export default function AccountView() {
             )}
           </section>
           <section className="bg-paper border border-line rounded-[20px] p-5">
-            <h2 className="font-serif text-2xl mb-3">{t.myReviews}</h2>
+            <h2 className="font-serif text-xl md:text-2xl mb-3">{t.myReviews}</h2>
             {!reviews ? (
               <p className="text-lg text-muted">...</p>
             ) : !reviews.length ? (
