@@ -279,7 +279,7 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
           </span>
           {sortSelect}
         </div>
-        <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-2.5 md:gap-4">
           {list.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}

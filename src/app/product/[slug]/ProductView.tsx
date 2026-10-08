@@ -44,17 +44,17 @@ export default function ProductView({ product, related, categories, fabrics, siz
       <main className="max-w-[1180px] mx-auto px-5">
         <Link href="/" className="text-[17px] text-muted inline-block mt-4">{t.back}</Link>
         <div className="grid md:grid-cols-2 gap-7 py-7">
-          <div>
-            <div className="relative w-full h-[320px] md:h-[480px]">
+          <div className="min-w-0">
+            <div className="relative w-full h-[280px] md:h-[480px]">
               <Image src={gallery[img % gallery.length]} alt={p.name} fill className="object-cover rounded-[20px] border border-line" sizes="(max-width:768px)100vw,50vw" priority />
             </div>
-            <div className="flex gap-2.5 mt-2.5">{gallery.map((im, i) => (
-              <button key={i} onClick={() => setImg(i)} className={`relative w-20 h-20 rounded-xl overflow-hidden border ${i === img ? "outline outline-2 outline-gold" : "border-line"}`}>
+            <div className="flex gap-2.5 mt-2.5 overflow-x-auto pb-1">{gallery.map((im, i) => (
+              <button key={i} onClick={() => setImg(i)} className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden border ${i === img ? "outline outline-2 outline-gold" : "border-line"}`}>
                 <Image src={im} alt="thumb" fill className="object-cover" sizes="80px" />
               </button>
             ))}</div>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="eyebrow">{p.cat}</div>
             <h1 className="font-serif text-[30px] my-2">{p.name}</h1>
             <div className="text-[17px] text-muted"><span className="stars">★★★★★</span> {p.rating}</div>
@@ -84,7 +84,7 @@ export default function ProductView({ product, related, categories, fabrics, siz
         </div>
         <ProductTabs description={p.description ?? ""} slug={p.slug} productName={p.name} />
         <h2 className="font-serif text-2xl my-3.5">{t.alsoLove} <span className="italic-accent">{t.love}</span></h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-4 pb-10">
           {related.map((r) => (
             <ProductCard key={r.slug} product={r} />
           ))}

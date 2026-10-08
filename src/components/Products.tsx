@@ -21,7 +21,7 @@ export default function Products({ initial }: { initial?: Product[] }) {
           <div className="gold-divider center" />
           <p className="text-lg text-muted">{t.prodSub}</p>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-4">
           {featured.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}

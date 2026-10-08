@@ -34,7 +34,7 @@ export default function ProductCard({ product }: { product: Product }) {
       tabIndex={0}
       className="bg-paper border border-line rounded-[20px] overflow-hidden shadow-[0_18px_50px_rgba(62,32,12,0.10)] hover:-translate-y-1 hover:border-gold transition flex flex-col cursor-pointer"
     >
-      <div className="relative aspect-square bg-sand">
+      <div className="relative aspect-[4/3] md:aspect-square bg-sand">
         <Image src={product.img} alt={product.name} fill className="object-cover" sizes="(max-width:768px)50vw,25vw" loading="lazy" />
         <span className="absolute left-2.5 top-2.5 bg-clay text-white text-[15px] font-extrabold rounded-full px-2.5 py-1">-{product.off}%</span>
         <button
@@ -48,25 +48,25 @@ export default function ProductCard({ product }: { product: Product }) {
           <Heart size={15} />
         </button>
       </div>
-      <div className="p-3 flex flex-col gap-1.5 flex-1">
-        <span className="text-[14px] tracking-[1.8px] text-gold font-extrabold uppercase">{product.cat}</span>
-        <div className="text-[16.5px] font-semibold leading-snug line-clamp-2 min-h-10 text-ink">{product.name}</div>
-        <div className="text-base text-muted"><span className="stars text-base">★★★★★</span> {product.rating}</div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-[17px] text-muted line-through">৳{product.old.toLocaleString()}</span>
-          <span className="text-lg font-extrabold text-clay">৳{product.now.toLocaleString()}</span>
+      <div className="p-2.5 md:p-3 flex flex-col gap-1 md:gap-1.5 flex-1">
+        <span className="text-[13px] md:text-[14px] tracking-[1.8px] text-gold font-extrabold uppercase">{product.cat}</span>
+        <div className="text-[15px] md:text-[16.5px] font-semibold leading-snug line-clamp-2 min-h-10 text-ink">{product.name}</div>
+        <div className="text-sm md:text-base text-muted whitespace-nowrap overflow-hidden text-ellipsis"><span className="stars text-sm md:text-base">★★★★★</span> {product.rating}</div>
+        <div className="flex items-baseline gap-1.5 md:gap-2">
+          <span className="text-[15px] md:text-[17px] text-muted line-through whitespace-nowrap">৳{product.old.toLocaleString()}</span>
+          <span className="text-[17px] md:text-lg font-extrabold text-clay whitespace-nowrap">৳{product.now.toLocaleString()}</span>
         </div>
-        <div className="flex flex-col gap-2 mt-1.5">
+        <div className="flex flex-col gap-2 mt-1 md:mt-1.5">
           <button
             onClick={(e) => {
               stop(e);
               add();
             }}
-            className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2.5 text-base font-bold hover:bg-clay-dark"
+            className="w-full inline-flex justify-center items-center gap-1.5 bg-clay text-white rounded-[35px] py-2 md:py-2.5 text-[15px] md:text-base font-bold hover:bg-clay-dark"
           >
             <ShoppingCart size={14} />{t.addToCart}
           </button>
-          <Link href={`/product/${product.slug}`} className="w-full inline-flex justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-base font-bold">
+          <Link href={`/product/${product.slug}`} className="hidden sm:inline-flex w-full justify-center items-center gap-1.5 bg-paper border border-line rounded-[35px] py-2 text-base font-bold">
             <Eye size={14} />{t.details}
           </Link>
         </div>
