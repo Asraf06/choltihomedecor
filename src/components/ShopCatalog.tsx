@@ -204,14 +204,6 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
             {catName("all")}
             <span className={`text-[15px] rounded-full px-2 py-0.5 ${cat === "all" && sub === "all" ? "bg-white/20" : "bg-sand text-muted"}`}>{counts["all"]}</span>
           </button>
-          <button
-            onClick={() => setHot((h) => !h)}
-            aria-pressed={hot}
-            className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[17px] font-bold border ${hot ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
-          >
-            <span>{t.offers} <span className={`text-[13px] font-extrabold rounded-full px-1.5 py-0.5 ${hot ? "bg-white/20" : "bg-clay text-white"}`}>HOT</span></span>
-            <span className={`text-[15px] rounded-full px-2 py-0.5 ${hot ? "bg-white/20" : "bg-sand text-muted"}`}>{counts.hot ?? 0}</span>
-          </button>
           {cats.map((c) => {
             const children = subsOf(c.id);
             const isOpen = !!expanded[c.id];
@@ -259,14 +251,6 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
       </aside>
       <div className="flex-1 min-w-0">
         <div className="lg:hidden flex gap-2 overflow-x-auto whitespace-nowrap pb-3 -mx-5 px-5">
-          <button
-            onClick={() => setHot((h) => !h)}
-            aria-pressed={hot}
-            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[17px] font-bold border ${hot ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}
-          >
-            {t.offers} HOT
-            <span className={`text-[15px] ${hot ? "text-white/80" : "text-muted"}`}>{counts.hot ?? 0}</span>
-          </button>
           {catIds.map((c) => (
             <button
               key={c}
