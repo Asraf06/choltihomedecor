@@ -241,7 +241,7 @@ export default function Header({ categories }: { categories?: ShopCategory[] }) 
                 <Link href="/about" className={navCls("/about")}>{t.about}</Link>
                 <Link href="/contact" className={navCls("/contact")}>{t.contact}</Link>
                 <Link href="/track-order" className={navCls("/track-order")}>{t.trackOrder}</Link>
-                <Link href="/shop" className="shrink-0 py-3.5 hover:text-clay transition-colors">{t.offers}<span className="bg-clay text-white text-[14px] font-extrabold rounded-full px-1.5 py-0.5 ml-1.5">HOT</span></Link>
+                <Link href="/shop/offers" className="shrink-0 py-3.5 hover:text-clay transition-colors">{t.offers}<span className="bg-clay text-white text-[14px] font-extrabold rounded-full px-1.5 py-0.5 ml-1.5">HOT</span></Link>
               </div>
               <div className="ml-auto hidden md:flex shrink-0"><a href={waLink(settings)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 bg-clay text-white rounded-full px-3.5 py-2 text-[16px] font-bold hover:bg-clay-dark my-2 whitespace-nowrap"><MessageCircle size={14} />{t.waOrder}</a></div>
             </div>

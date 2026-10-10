@@ -86,7 +86,7 @@ export default function MobileMenu({ open, onClose }: { open: boolean; onClose: 
             );
           })}
           <a
-            href="/shop"
+            href="/shop/offers"
             onClick={onClose}
             className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[16px] font-bold hover:bg-sand"
           >

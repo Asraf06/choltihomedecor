@@ -59,12 +59,13 @@ function SortDropdown({ sort, setSort }: { sort: string; setSort: (s: string) =>
 
 // Shop layout: sticky category sidebar on the left, sort dropdown above the grid on the right.
 // Categories with subcategories fold/unfold (chevron). Picking a sub filters the grid.
-export default function ShopCatalog({ initial, categories, subs, initialCat = "all", initialSub = "all" }: { initial?: Product[]; categories?: ShopCategory[]; subs?: ShopSub[]; initialCat?: string; initialSub?: string }) {
+export default function ShopCatalog({ initial, categories, subs, initialCat = "all", initialSub = "all", initialHot = false }: { initial?: Product[]; categories?: ShopCategory[]; subs?: ShopSub[]; initialCat?: string; initialSub?: string; initialHot?: boolean }) {
   const { t, lang } = useLang();
   const { search, setSearch, chromeHidden } = useShop();
   const router = useRouter();
   const [cat, setCat] = useState(initialCat);
   const [sub, setSub] = useState(initialSub);
+  const [hot, setHot] = useState(initialHot);
   const [expanded, setExpanded] = useState<Record<string, boolean>>(initialCat !== "all" ? { [initialCat]: true } : {});
   const [sort, setSort] = useState("featured");
   const source = initial?.length ? initial : PRODUCTS;
@@ -102,6 +103,7 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
   const counts = useMemo(() => {
     const m: Record<string, number> = { all: source.length };
     for (const c of catIds.slice(1)) m[c] = source.filter((p) => p.cat === c).length;
+    m.hot = source.filter((p) => p.tags.includes("hot")).length;
     return m;
   }, [source, cats]);
 
@@ -117,6 +119,7 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
       (p) =>
         (cat === "all" || p.cat === cat) &&
         (sub === "all" ? true : sub === "" ? !p.sub : p.sub === sub) &&
+        (!hot || p.tags.includes("hot")) &&
         (!q || `${p.name} ${p.bn} ${p.cat}`.toLowerCase().includes(q))
     );
     if (sort === "low") filtered.sort((a, b) => a.now - b.now);
@@ -126,12 +129,17 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
   }, [cat, sub, sort, search]);
 
   const q = search.trim();
-  const hasActive = cat !== "all" || sub !== "all" || sort !== "featured" || q !== "";
+  const hasActive = cat !== "all" || sub !== "all" || sort !== "featured" || q !== "" || hot;
+  const clearHot = () => {
+    setHot(false);
+    router.replace("/shop", { scroll: false });
+  };
   const clearAll = () => {
     setCat("all");
     setSub("all");
     setSort("featured");
     setSearch("");
+    setHot(false);
     router.replace("/shop", { scroll: false });
   };
 
@@ -149,6 +157,11 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
         <p className="text-[16px] text-muted">{t.noFilters}</p>
       ) : (
         <div className="flex flex-wrap gap-1.5">
+          {hot && (
+            <button onClick={clearHot} className="inline-flex items-center gap-1 rounded-full bg-clay text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
+              {t.offers} HOT<X size={12} />
+            </button>
+          )}
           {cat !== "all" && (
             <button onClick={() => selectCat("all")} className="inline-flex items-center gap-1 rounded-full bg-forest text-white text-[15.5px] font-bold pl-3 pr-2 py-1.5">
               {catName(cat)}<X size={12} />
@@ -190,6 +203,14 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
           >
             {catName("all")}
             <span className={`text-[15px] rounded-full px-2 py-0.5 ${cat === "all" && sub === "all" ? "bg-white/20" : "bg-sand text-muted"}`}>{counts["all"]}</span>
+          </button>
+          <button
+            onClick={() => setHot((h) => !h)}
+            aria-pressed={hot}
+            className={`flex justify-between items-center rounded-xl px-3.5 py-2.5 text-[17px] font-bold border ${hot ? "bg-clay border-clay text-white" : "bg-paper border-line hover:border-gold text-ink"}`}
+          >
+            <span>{t.offers} <span className={`text-[13px] font-extrabold rounded-full px-1.5 py-0.5 ${hot ? "bg-white/20" : "bg-clay text-white"}`}>HOT</span></span>
+            <span className={`text-[15px] rounded-full px-2 py-0.5 ${hot ? "bg-white/20" : "bg-sand text-muted"}`}>{counts.hot ?? 0}</span>
           </button>
           {cats.map((c) => {
             const children = subsOf(c.id);
@@ -238,6 +259,14 @@ export default function ShopCatalog({ initial, categories, subs, initialCat = "a
       </aside>
       <div className="flex-1 min-w-0">
         <div className="lg:hidden flex gap-2 overflow-x-auto whitespace-nowrap pb-3 -mx-5 px-5">
+          <button
+            onClick={() => setHot((h) => !h)}
+            aria-pressed={hot}
+            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[17px] font-bold border ${hot ? "bg-clay border-clay text-white" : "bg-paper border-line"}`}
+          >
+            {t.offers} HOT
+            <span className={`text-[15px] ${hot ? "text-white/80" : "text-muted"}`}>{counts.hot ?? 0}</span>
+          </button>
           {catIds.map((c) => (
             <button
               key={c}
